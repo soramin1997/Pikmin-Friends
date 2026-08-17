@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -5,11 +7,913 @@
     <!-- 網頁標題 -->
     <title>皮友們集合囉！</title>
 
-    <!-- 指定手機「加入主畫面」時顯示的圖示 -->
+    <!-- 手機加入主畫面的 App 圖示 -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="apple-touch-icon.png">
 
-    <!-- iOS 全螢幕 App 設定 -->
+    <!-- iOS 全螢幕 App 模式設定 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="皮友們集合囉！">
+
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #f4f7f4;
+            --card-bg: #ffffff;
+            --primary-green: #52a447;
+            --primary-dark: #3a7a30;
+            --accent-orange: #ff8c42;
+            --accent-pink: #f06292;
+            --text-main: #2c3e50;
+            --text-sub: #7f8c8d;
+            --border-color: #e2ece9;
+            --shadow-sm: 0 4px 12px rgba(82, 164, 71, 0.08);
+            --shadow-md: 0 6px 20px rgba(0,0,0,0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Varela Round', 'Noto Sans TC', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding-bottom: 90px;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-dark));
+            color: white;
+            padding: 20px 16px;
+            text-align: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab-bar {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 16px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: #e0eae3;
+            color: var(--text-sub);
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-green);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        .friend-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .friend-item {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .rank-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #eceff1;
+            color: #78909c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.85rem;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .rank-1 { background: #ffe082; color: #f57f17; }
+        .rank-2 { background: #cfd8dc; color: #455a64; }
+        .rank-3 { background: #ffccbc; color: #e64a19; }
+
+        .friend-info {
+            flex: 1;
+            margin-right: 12px;
+            overflow: hidden;
+        }
+
+        .friend-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .friend-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .type-icons {
+            font-size: 0.85rem;
+        }
+
+        .friend-status {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+
+        .friend-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .mini-tag {
+            background: #eef7ed;
+            color: var(--primary-dark);
+            font-size: 0.72rem;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        .action-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
+        .count-display {
+            text-align: right;
+        }
+
+        .count-main {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: var(--primary-green);
+        }
+
+        .count-sub {
+            font-size: 0.7rem;
+            color: var(--text-sub);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-action {
+            border: none;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-rec {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .btn-edit {
+            background: #f0f3f1;
+            color: var(--text-sub);
+        }
+
+        .history-toggle {
+            font-size: 0.75rem;
+            color: var(--primary-dark);
+            cursor: pointer;
+            margin-top: 4px;
+            display: inline-block;
+            text-decoration: underline;
+        }
+
+        .history-detail {
+            display: none;
+            font-size: 0.75rem;
+            color: #555;
+            background: #f9fbf9;
+            padding: 6px 8px;
+            border-radius: 6px;
+            margin-top: 4px;
+            border: 1px dashed #d0e2d0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-sub);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--accent-orange);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 900;
+            box-shadow: 0 8px 20px rgba(255, 140, 66, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 90;
+        }
+
+        /* Modal 彈窗樣式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 600px;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            padding: 20px 20px 30px 20px;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUp 0.25s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.2rem;
+            font-weight: 900;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-sub);
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 16px;
+            margin-top: 6px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .mushroom-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .m-btn {
+            padding: 8px 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #f8fbf8;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .m-btn.active {
+            background: var(--primary-green);
+            color: white;
+            border-color: var(--primary-green);
+        }
+
+        .m-btn-rec {
+            background: #ffffff;
+            border: 1px solid #d0e2d0;
+            padding: 10px 4px;
+        }
+
+        .mushroom-section-title {
+            grid-column: span 3;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            margin-top: 8px;
+            margin-bottom: 2px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 900;
+            margin-top: 16px;
+            cursor: pointer;
+        }
+
+        .btn-delete {
+            width: 100%;
+            padding: 10px;
+            background: #ffebee;
+            color: #c62828;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            background: #f0f3f1;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .mode-btn.active {
+            background: var(--accent-orange);
+            color: white;
+            border-color: var(--accent-orange);
+        }
+    </style>
 </head>
+<body>
+
+    <header>
+        <h1>🍄 皮友們集合囉！ ✉️</h1>
+    </header>
+
+    <div class="tab-bar">
+        <button class="tab-btn active" id="tabAll" onclick="switchTab('all')">全部皮友</button>
+        <button class="tab-btn" id="tabMushroom" onclick="switchTab('mushroom')">🍄 打菇戰友</button>
+        <button class="tab-btn" id="tabPostcard" onclick="switchTab('postcard')">✉️ 明信片筆友</button>
+    </div>
+
+    <div class="container">
+        <div class="friend-list" id="friendList"></div>
+    </div>
+
+    <button class="fab" onclick="openAddModal()">➕ 新增皮友</button>
+
+    <!-- 新增 / 編輯好友彈窗 -->
+    <div class="modal" id="friendModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="friendModalTitle">新夥伴加入！</h3>
+                <button class="close-btn" onclick="closeModal('friendModal')">✕</button>
+            </div>
+            <input type="hidden" id="editFriendId">
+            <div class="form-group">
+                <label>好友暱稱 *</label>
+                <input type="text" id="modalName" class="form-input" placeholder="例如：皮克敏大師">
+            </div>
+            <div class="form-group">
+                <label>狀態 / 備註</label>
+                <input type="text" id="modalStatus" class="form-input" placeholder="例如：天天上線 / 徵火菇">
+            </div>
+            <div class="form-group">
+                <label>分類標籤 *</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="checkMushroom" onchange="toggleMushroomForm()"> 🍄 打菇戰友
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="checkPostcard"> ✉️ 明信片筆友
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" id="prefSection" style="display: none;">
+                <label>偏好打菇類型（可多選）</label>
+                <div class="mushroom-grid" id="prefGrid"></div>
+            </div>
+            <button class="btn-submit" onclick="saveFriend()">儲存資料</button>
+            <button class="btn-delete" id="btnDeleteFriend" style="display: none;" onclick="deleteFriend()">刪除好友</button>
+        </div>
+    </div>
+
+    <!-- 紀錄互動彈窗 -->
+    <div class="modal" id="recordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="recordTitle">紀錄互動</h3>
+                <button class="close-btn" onclick="closeModal('recordModal')">✕</button>
+            </div>
+            <input type="hidden" id="recordFriendId">
+            
+            <div class="mode-selector" id="recordTypeSelector">
+                <button class="mode-btn active" id="btnModeMushroom" onclick="setRecordMode('mushroom')">🍄 紀錄打菇</button>
+                <button class="mode-btn" id="btnModePostcard" onclick="setRecordMode('postcard')">✉️ 紀錄明信片</button>
+            </div>
+
+            <!-- 打菇選擇區 -->
+            <div id="mushroomRecordSection">
+                <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-sub);">請選擇本次打菇種類：</label>
+                <div class="mushroom-grid" id="recordGrid"></div>
+            </div>
+
+            <!-- 明信片記錄區 -->
+            <div id="postcardRecordSection" style="display: none; text-align: center; padding: 20px 0;">
+                <p style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;">已收到或寄出明信片 +1 封？</p>
+                <button class="btn-submit" onclick="confirmPostcardRecord()">確定紀錄明信片</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 15 種蘑菇定義
+        const MUSHROOM_TYPES = [
+            { id: 'red', name: '🔴 紅色', group: 'standard' },
+            { id: 'yellow', name: '🟡 黃色', group: 'standard' },
+            { id: 'blue', name: '🔵 藍色', group: 'standard' },
+            { id: 'purple', name: '🟣 紫色', group: 'standard' },
+            { id: 'white', name: '⚪ 白色', group: 'standard' },
+            { id: 'pink', name: '🩷 粉紅', group: 'standard' },
+            { id: 'grey', name: '🩶 灰色', group: 'standard' },
+            { id: 'ice', name: '🧊 冰藍', group: 'standard' },
+            { id: 'fire', name: '🔥 火菇', group: 'elemental' },
+            { id: 'water', name: '💧 水菇', group: 'elemental' },
+            { id: 'electric', name: '⚡ 電菇', group: 'elemental' },
+            { id: 'poison', name: '☠️ 毒菇', group: 'elemental' },
+            { id: 'crystal', name: '💎 水晶', group: 'elemental' },
+            { id: 'event_normal', name: '🌟 一般活動菇', group: 'event' },
+            { id: 'event_giant', name: '👑 巨大活動菇', group: 'event' }
+        ];
+
+        let currentTab = 'all';
+        let selectedPrefTags = new Set();
+        let currentRecordMode = 'mushroom';
+        let friends = [];
+
+        // 安全讀取 LocalStorage (避免手機 LocalStorage 禁用或格式錯誤)
+        function loadStorageData() {
+            try {
+                const rawData = localStorage.getItem('pikmin_friends_v14') || localStorage.getItem('pikmin_friends_v13');
+                if (rawData) {
+                    friends = JSON.parse(rawData);
+                }
+            } catch (e) {
+                console.warn('LocalStorage 讀取失敗，採用記憶體模式：', e);
+                friends = [];
+            }
+
+            if (!Array.isArray(friends)) friends = [];
+
+            // 補齊舊資料結構
+            friends.forEach(f => {
+                if (!f.types) f.types = ['mushroom'];
+                if (!f.mushroomPref) f.mushroomPref = [];
+                if (!f.mushroomHistory) f.mushroomHistory = {};
+                if (f.mushroomCount === undefined) f.mushroomCount = 0;
+                if (f.postcardCount === undefined) f.postcardCount = 0;
+                if (!f.lastActive) f.lastActive = '無紀錄';
+            });
+        }
+
+        function save() {
+            try {
+                localStorage.setItem('pikmin_friends_v14', JSON.stringify(friends));
+            } catch (e) {
+                console.error('LocalStorage 儲存失敗：', e);
+            }
+            render();
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('tabAll').classList.toggle('active', tab === 'all');
+            document.getElementById('tabMushroom').classList.toggle('active', tab === 'mushroom');
+            document.getElementById('tabPostcard').classList.toggle('active', tab === 'postcard');
+            render();
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function openAddModal() {
+            document.getElementById('friendModalTitle').innerText = '新夥伴加入！';
+            document.getElementById('editFriendId').value = '';
+            document.getElementById('modalName').value = '';
+            document.getElementById('modalStatus').value = '';
+            document.getElementById('checkMushroom').checked = true;
+            document.getElementById('checkPostcard').checked = false;
+            document.getElementById('btnDeleteFriend').style.display = 'none';
+            
+            selectedPrefTags.clear();
+            buildPrefGrid();
+            toggleMushroomForm();
+            openModal('friendModal');
+        }
+
+        function openEditModal(id) {
+            const friend = friends.find(f => f.id === id);
+            if (!friend) return;
+
+            document.getElementById('friendModalTitle').innerText = '編輯好友資料';
+            document.getElementById('editFriendId').value = friend.id;
+            document.getElementById('modalName').value = friend.name || '';
+            document.getElementById('modalStatus').value = friend.status || '';
+            document.getElementById('checkMushroom').checked = (friend.types || []).includes('mushroom');
+            document.getElementById('checkPostcard').checked = (friend.types || []).includes('postcard');
+            document.getElementById('btnDeleteFriend').style.display = 'block';
+
+            selectedPrefTags = new Set(friend.mushroomPref || []);
+            buildPrefGrid();
+            toggleMushroomForm();
+            openModal('friendModal');
+        }
+
+        function toggleMushroomForm() {
+            const isMushroom = document.getElementById('checkMushroom').checked;
+            document.getElementById('prefSection').style.display = isMushroom ? 'block' : 'none';
+        }
+
+        function buildPrefGrid() {
+            const container = document.getElementById('prefGrid');
+            container.innerHTML = '';
+            MUSHROOM_TYPES.forEach(m => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `m-btn ${selectedPrefTags.has(m.name) ? 'active' : ''}`;
+                btn.innerText = m.name;
+                btn.onclick = () => {
+                    if (selectedPrefTags.has(m.name)) {
+                        selectedPrefTags.delete(m.name);
+                        btn.classList.remove('active');
+                    } else {
+                        selectedPrefTags.add(m.name);
+                        btn.classList.add('active');
+                    }
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function saveFriend() {
+            const name = document.getElementById('modalName').value.trim();
+            const status = document.getElementById('modalStatus').value.trim() || '新夥伴';
+            const isMushroom = document.getElementById('checkMushroom').checked;
+            const isPostcard = document.getElementById('checkPostcard').checked;
+            const editId = document.getElementById('editFriendId').value;
+
+            if (!name) { alert('請輸入好友暱稱！'); return; }
+            if (!isMushroom && !isPostcard) { alert('請至少勾選一個分類！'); return; }
+
+            let types = [];
+            if (isMushroom) types.push('mushroom');
+            if (isPostcard) types.push('postcard');
+
+            const today = new Date();
+            const dateStr = `${today.getMonth() + 1}/${today.getDate()}`;
+
+            if (editId) {
+                const friend = friends.find(f => f.id == editId);
+                if (friend) {
+                    friend.name = name;
+                    friend.status = status;
+                    friend.types = types;
+                    friend.mushroomPref = isMushroom ? Array.from(selectedPrefTags) : [];
+                }
+            } else {
+                friends.unshift({
+                    id: Date.now(),
+                    name,
+                    status,
+                    types,
+                    mushroomPref: isMushroom ? Array.from(selectedPrefTags) : [],
+                    mushroomHistory: {},
+                    mushroomCount: 0,
+                    postcardCount: 0,
+                    lastActive: dateStr
+                });
+            }
+
+            save();
+            closeModal('friendModal');
+        }
+
+        function deleteFriend() {
+            const editId = document.getElementById('editFriendId').value;
+            if (editId && confirm('確定要刪除這位好友嗎？')) {
+                friends = friends.filter(f => f.id != editId);
+                save();
+                closeModal('friendModal');
+            }
+        }
+
+        function openRecordModal(id) {
+            const friend = friends.find(f => f.id === id);
+            if (!friend) return;
+
+            document.getElementById('recordFriendId').value = friend.id;
+            document.getElementById('recordTitle').innerText = `紀錄與 ${friend.name} 的互動`;
+
+            const hasM = (friend.types || []).includes('mushroom');
+            const hasP = (friend.types || []).includes('postcard');
+
+            const selector = document.getElementById('recordTypeSelector');
+            if (hasM && hasP) {
+                selector.style.display = 'flex';
+                setRecordMode(currentTab === 'postcard' ? 'postcard' : 'mushroom');
+            } else if (hasP) {
+                selector.style.display = 'none';
+                setRecordMode('postcard');
+            } else {
+                selector.style.display = 'none';
+                setRecordMode('mushroom');
+            }
+
+            buildRecordGrid();
+            openModal('recordModal');
+        }
+
+        function setRecordMode(mode) {
+            currentRecordMode = mode;
+            document.getElementById('btnModeMushroom').classList.toggle('active', mode === 'mushroom');
+            document.getElementById('btnModePostcard').classList.toggle('active', mode === 'postcard');
+            document.getElementById('mushroomRecordSection').style.display = mode === 'mushroom' ? 'block' : 'none';
+            document.getElementById('postcardRecordSection').style.display = mode === 'postcard' ? 'block' : 'none';
+        }
+
+        function buildRecordGrid() {
+            const container = document.getElementById('recordGrid');
+            container.innerHTML = '';
+
+            const groups = [
+                { key: 'standard', title: '一般顏色蘑菇' },
+                { key: 'elemental', title: '元素蘑菇' },
+                { key: 'event', title: '活動限定蘑菇' }
+            ];
+
+            groups.forEach(g => {
+                const titleEl = document.createElement('div');
+                titleEl.className = 'mushroom-section-title';
+                titleEl.innerText = g.title;
+                container.appendChild(titleEl);
+
+                MUSHROOM_TYPES.filter(m => m.group === g.key).forEach(m => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'm-btn m-btn-rec';
+                    btn.innerText = m.name;
+                    btn.onclick = () => recordMushroom(m.name);
+                    container.appendChild(btn);
+                });
+            });
+        }
+
+        function recordMushroom(mName) {
+            const id = document.getElementById('recordFriendId').value;
+            const friend = friends.find(f => f.id == id);
+            if (friend) {
+                const today = new Date();
+                friend.mushroomCount = (friend.mushroomCount || 0) + 1;
+                if (!friend.mushroomHistory) friend.mushroomHistory = {};
+                friend.mushroomHistory[mName] = (friend.mushroomHistory[mName] || 0) + 1;
+                friend.lastActive = `${today.getMonth() + 1}/${today.getDate()}`;
+                save();
+                closeModal('recordModal');
+            }
+        }
+
+        function confirmPostcardRecord() {
+            const id = document.getElementById('recordFriendId').value;
+            const friend = friends.find(f => f.id == id);
+            if (friend) {
+                const today = new Date();
+                friend.postcardCount = (friend.postcardCount || 0) + 1;
+                friend.lastActive = `${today.getMonth() + 1}/${today.getDate()}`;
+                save();
+                closeModal('recordModal');
+            }
+        }
+
+        function toggleHistory(id) {
+            const el = document.getElementById(`history-${id}`);
+            if (el) el.style.display = el.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function render() {
+            const list = document.getElementById('friendList');
+            list.innerHTML = '';
+
+            let filtered = friends.filter(f => {
+                if (currentTab === 'all') return true;
+                return f.types && f.types.includes(currentTab);
+            });
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="empty-state">
+                    🌱<br>這個分類目前還沒有皮友<br>點擊右下角「➕ 新增皮友」開始紀錄！
+                </div>`;
+                return;
+            }
+
+            filtered.sort((a, b) => {
+                if (currentTab === 'all') {
+                    const totalA = (a.mushroomCount || 0) + (a.postcardCount || 0);
+                    const totalB = (b.mushroomCount || 0) + (b.postcardCount || 0);
+                    return totalB - totalA;
+                } else if (currentTab === 'mushroom') {
+                    return (b.mushroomCount || 0) - (a.mushroomCount || 0);
+                } else {
+                    return (b.postcardCount || 0) - (a.postcardCount || 0);
+                }
+            });
+
+            filtered.forEach((f, idx) => {
+                const rank = idx + 1;
+                let rankClass = rank <= 3 ? `rank-${rank}` : '';
+
+                let typeIcons = '';
+                if (f.types && f.types.includes('mushroom')) typeIcons += '🍄';
+                if (f.types && f.types.includes('postcard')) typeIcons += '✉️';
+
+                let tagsHtml = '';
+                if (f.mushroomPref && f.mushroomPref.length > 0) {
+                    tagsHtml = `<div class="friend-tags">${f.mushroomPref.map(p => `<span class="mini-tag">${escapeHtml(p)}</span>`).join('')}</div>`;
+                }
+
+                let historyHtml = '';
+                if (f.mushroomHistory && Object.keys(f.mushroomHistory).length > 0) {
+                    const historyDetails = Object.entries(f.mushroomHistory)
+                        .map(([k, v]) => `${k}: ${v}次`)
+                        .join(' ｜ ');
+                    historyHtml = `
+                        <span class="history-toggle" onclick="toggleHistory(${f.id})">📜 打菇戰績統計 ▾</span>
+                        <div class="history-detail" id="history-${f.id}">${escapeHtml(historyDetails)}</div>
+                    `;
+                }
+
+                let countMain = 0;
+                let countSub = '';
+
+                if (currentTab === 'all') {
+                    countMain = (f.mushroomCount || 0) + (f.postcardCount || 0);
+                    countSub = `🍄 ${f.mushroomCount || 0} / ✉️ ${f.postcardCount || 0}`;
+                } else if (currentTab === 'mushroom') {
+                    countMain = f.mushroomCount || 0;
+                    countSub = '揪菇次數';
+                } else {
+                    countMain = f.postcardCount || 0;
+                    countSub = '明信片次數';
+                }
+
+                const item = document.createElement('div');
+                item.className = 'friend-item';
+                item.innerHTML = `
+                    <div class="rank-badge ${rankClass}">${rank}</div>
+                    <div class="friend-info">
+                        <div class="friend-header">
+                            <span class="friend-name">${escapeHtml(f.name || '')}</span>
+                            <span class="type-icons">${typeIcons}</span>
+                        </div>
+                        <div class="friend-status">${escapeHtml(f.status || '')} ｜ 上次互動：${f.lastActive || '無紀錄'}</div>
+                        ${tagsHtml}
+                        ${historyHtml}
+                    </div>
+                    <div class="action-wrap">
+                        <div class="count-display">
+                            <div class="count-main">${countMain} <span style="font-size:0.75rem;">次</span></div>
+                            <div class="count-sub">${countSub}</div>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn-action btn-rec" onclick="openRecordModal(${f.id})">📝 紀錄</button>
+                            <button class="btn-action btn-edit" onclick="openEditModal(${f.id})">⚙️</button>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+        }
+
+        // 初始化讀取資料
+        loadStorageData();
+        render();
+    </script>
+</body>
+</html>
