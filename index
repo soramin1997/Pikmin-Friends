@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- 1. 修改網頁標題 -->
+    <title>皮友們集合囉！</title>
+
+    <!-- 2. 手機「加入主畫面」的 App 圖示 (iOS / Android 均支援) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="apple-touch-icon.png">
+
+    <!-- 3. iOS 全螢幕 App 模式設定 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="皮友們集合囉！">
+
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+    ...
