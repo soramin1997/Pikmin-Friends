@@ -149,14 +149,13 @@
 
   <!-- 5. 本月任務 -->
   <div id="page-guide" class="page-tab">
-    <!-- 月份選擇器 -->
+    <!-- 月份選擇器 (左右速切 + 點擊展開 12 宮格面板) -->
     <div class="content-card" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px;">
-      <span style="font-weight:bold; font-size:15px;">📅 選擇月份記錄</span>
-      <select id="monthSelector" class="form-input" style="width:140px; padding:6px;" onchange="changeGuideMonth(this.value)">
-        <option value="2026-08">2026年 8月</option>
-        <option value="2026-07">2026年 7月</option>
-        <option value="2026-06">2026年 6月</option>
-      </select>
+      <button onclick="shiftMonth(-1)" style="background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; padding:4px 8px;">◀</button>
+      <div onclick="openMonthPickerModal()" style="font-weight:bold; font-size:15px; cursor:pointer; color:var(--primary-dark); display:flex; align-items:center; gap:4px;">
+        <span id="currentMonthLabel">2026年 8月</span> ▾
+      </div>
+      <button onclick="shiftMonth(1)" style="background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; padding:4px 8px;">▶</button>
     </div>
 
     <div class="content-card">
@@ -245,7 +244,8 @@
   <script>
     let currentActiveTab = 'friends';
     let friendSubTab = 'all';
-    let currentGuideMonth = '2026-08';
+    let currentYear = 2026;
+    let currentMonth = 8;
 
     let appData = JSON.parse(localStorage.getItem("pikmin_app_data") || JSON.stringify({
       friends: [{ id: 1, name: "Yamagishi", isMushroom: true, isPostcard: true, mushrooms: [], postcards: [] }],
@@ -268,7 +268,6 @@
       document.getElementById(`page-${tabId}`).classList.add('active');
       btnElem.classList.add('active');
 
-      // 本月任務頁隱藏 + 按鈕
       document.getElementById("fabButton").style.display = (tabId === 'guide') ? 'none' : 'flex';
     }
 
@@ -279,10 +278,61 @@
       renderFriendsList();
     }
 
-    function changeGuideMonth(val) {
-      currentGuideMonth = val;
+    function getMonthKey() {
+      return `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+    }
+
+    function updateMonthLabel() {
+      document.getElementById("currentMonthLabel").innerText = `${currentYear}年 ${currentMonth}月`;
+    }
+
+    function shiftMonth(dir) {
+      currentMonth += dir;
+      if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+      else if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+      updateMonthLabel();
       renderDex();
       renderImages();
+    }
+
+    function selectMonthDirect(y, m) {
+      currentYear = y;
+      currentMonth = m;
+      updateMonthLabel();
+      renderDex();
+      renderImages();
+      closeGlobalModal();
+    }
+
+    function openMonthPickerModal() {
+      document.getElementById("modalTitle").innerText = "選擇年份與月份";
+      let content = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <button onclick="changePickerYear(-1)" style="padding:6px 12px; background:#eee; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">◀</button>
+          <span style="font-size:16px; font-weight:bold;" id="pickerYearText">${currentYear}年</span>
+          <button onclick="changePickerYear(1)" style="padding:6px 12px; background:#eee; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">▶</button>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;" id="pickerMonthsGrid">
+      `;
+      for(let m = 1; m <= 12; m++) {
+        let isSel = (currentYear === 2026 && currentMonth === m) ? 'background:var(--primary); color:white; font-weight:bold;' : 'background:#f9f9f9;';
+        content += `<button onclick="selectMonthDirect(${currentYear}, ${m})" style="padding:14px; border:1px solid #ddd; border-radius:10px; cursor:pointer; font-size:14px; ${isSel}">${m}月</button>`;
+      }
+      content += `</div>`;
+      document.getElementById("modalBodyContent").innerHTML = content;
+      document.getElementById("globalModal").classList.add("open");
+    }
+
+    let pickerTempYear = 2026;
+    function changePickerYear(dir) {
+      pickerTempYear = (pickerTempYear || currentYear) + dir;
+      document.getElementById("pickerYearText").innerText = `${pickerTempYear}年`;
+      let grid = document.getElementById("pickerMonthsGrid");
+      let html = "";
+      for(let m = 1; m <= 12; m++) {
+        html += `<button onclick="selectMonthDirect(${pickerTempYear}, ${m})" style="padding:14px; border:1px solid #ddd; border-radius:10px; cursor:pointer; font-size:14px; background:#f9f9f9;">${m}月</button>`;
+      }
+      grid.innerHTML = html;
     }
 
     function handleFabClick() {
@@ -301,7 +351,6 @@
       renderImages();
     }
 
-    // 取得獎牌 HTML
     function getRankBadge(idx) {
       let rankClass = "rank-normal";
       if (idx === 0) rankClass = "rank-1";
@@ -329,7 +378,6 @@
       }
 
       list.forEach((f, idx) => {
-        // 計算上次互動日期
         let allDates = [...f.mushrooms.map(m => m.date), ...f.postcards.map(p => p.date)].sort();
         let lastDate = allDates.length > 0 ? allDates[allDates.length - 1] : "無";
 
@@ -374,7 +422,6 @@
         let allDates = f.mushrooms.map(m => m.date).sort();
         let lastDate = allDates.length > 0 ? allDates[allDates.length - 1] : "無";
 
-        // 統計揪過的菇類數量
         let typeCounts = {};
         f.mushrooms.forEach(m => { typeCounts[m.type] = (typeCounts[m.type] || 0) + 1; });
         let statsSummaryStr = Object.keys(typeCounts).map(t => `${t} x${typeCounts[t]}`).join('、');
@@ -444,7 +491,7 @@
       });
     }
 
-    // 4. 課長筆記分類 (改為累積金額)
+    // 4. 課長筆記分類
     function renderStatsList() {
       document.getElementById("ticketStockVal").innerText = `${appData.tickets} 張`;
       let totalNT = appData.stats.reduce((sum, item) => sum + (item.price || 0), 0);
@@ -509,8 +556,9 @@
       if(!container) return;
       container.innerHTML = "";
       let collectedCount = 0;
+      let mKey = getMonthKey();
       pikmin8Colors.forEach((p, idx) => {
-        const key = `${currentGuideMonth}_${prefix}_${idx}`;
+        const key = `${mKey}_${prefix}_${idx}`;
         const isCollected = appData.dex[key] || false;
         if (isCollected) collectedCount++;
         const div = document.createElement("div");
@@ -530,8 +578,9 @@
     }
 
     function renderImages() {
+      let mKey = getMonthKey();
       ['img_guideMain', 'img_g1', 'img_g2', 'img_g3'].forEach(key => {
-        const fullKey = `${currentGuideMonth}_${key}`;
+        const fullKey = `${mKey}_${key}`;
         let previewId = key === 'img_guideMain' ? 'guide_preview' : `preview_${key.replace('img_', '')}`;
         let img = document.getElementById(previewId);
         if(img) {
@@ -550,7 +599,8 @@
       if (!file) return;
       const reader = new FileReader();
       reader.onload = e => {
-        const fullKey = `${currentGuideMonth}_${key}`;
+        let mKey = getMonthKey();
+        const fullKey = `${mKey}_${key}`;
         appData.images[fullKey] = e.target.result;
         saveData();
       };
