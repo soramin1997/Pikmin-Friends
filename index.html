@@ -18,14 +18,12 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-main); padding-top: 65px; padding-bottom: 110px; max-width: 600px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
     
-    /* 置頂固定標題 */
     header { position: fixed; top: 0; left: 0; width: 100%; background: var(--bg-color); display: flex; justify-content: center; align-items: center; padding: 14px 16px; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
     .header-title { font-size: 18px; font-weight: bold; color: #000; }
 
     .page-tab { display: none; }
     .page-tab.active { display: block; }
 
-    /* 置頂固定控制區 (皮友頁) */
     .sticky-friends-header { position: sticky; top: 55px; background: var(--bg-color); z-index: 150; padding-top: 8px; padding-bottom: 8px; }
     .filter-bar { display: flex; gap: 8px; margin-bottom: 10px; }
     .search-input { flex: 1; padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 13px; background: #fff; }
@@ -33,10 +31,8 @@
     .tab-btn { flex: 1; padding: 8px; border: none; background: none; font-size: 13px; font-weight: bold; color: #777; border-radius: 8px; cursor: pointer; }
     .tab-btn.active { background: #fff; color: var(--primary-dark); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-    /* 置頂固定控制區 (課長筆記頁) */
     .sticky-stats-header { position: sticky; top: 55px; background: var(--bg-color); z-index: 150; padding-top: 8px; padding-bottom: 8px; }
     
-    /* 獎牌排行榜樣式 (方案B) */
     .rank-badge { width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.15); position: relative; }
     .rank-1 { background: linear-gradient(135deg, #ffd700, #ff8c00); }
     .rank-2 { background: linear-gradient(135deg, #e0e0e0, #9e9e9e); }
@@ -51,12 +47,14 @@
     .friend-stats-right { text-align: right; }
     .stat-main-num { font-size: 16px; font-weight: bold; color: var(--primary-dark); }
     .stat-sub-num { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
-    .history-toggle-btn { background: none; border: none; color: var(--primary-dark); font-size: 13px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+    .history-toggle-btn { background: none; border: none; color: var(--text-sub); font-size: 13px; font-weight: bold; cursor: pointer; margin-top: 8px; }
     .history-content-box { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-color); }
     .history-content-box.open { display: block; }
     .history-item-row { font-size: 12px; color: #555; background: #fafafa; padding: 6px 10px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
     .card-action-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
-    .record-btn { background: var(--primary); color: white; border: none; padding: 6px 14px; border-radius: 16px; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(0,176,116,0.3); }
+    .record-btn-group { display: flex; gap: 6px; }
+    .record-btn { background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(0,176,116,0.3); }
+    .record-btn-postcard { background: #0288d1; }
     
     .summary-row { display: flex; gap: 12px; margin-bottom: 16px; }
     .summary-card { flex: 1; background: #ffffff; border-radius: var(--radius); padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
@@ -68,8 +66,9 @@
     .progress-bar-bg { background: #eee; border-radius: 8px; height: 8px; overflow: hidden; margin-bottom: 12px; }
     .progress-bar-fill { background: var(--primary); height: 100%; width: 0%; transition: width 0.3s ease; }
     
-    .upload-btn { display: inline-block; font-size: 12px; padding: 5px 12px; border: 1px solid #ddd; border-radius: 16px; background: #fff; color: var(--text-sub); cursor: pointer; margin-bottom: 10px; }
-    .ref-img-preview { width: 100%; max-height: 220px; object-fit: contain; border-radius: 10px; border: 1px dashed var(--border-color); margin-bottom: 12px; background: #fafafa; cursor: pointer; }
+    .upload-box { border: 2px dashed #ccc; border-radius: 12px; padding: 24px; text-align: center; background: #fafafa; cursor: pointer; margin-bottom: 12px; color: var(--text-sub); font-size: 13px; font-weight: bold; }
+    .upload-box:hover { border-color: var(--primary); color: var(--primary-dark); }
+    .ref-img-preview { width: 100%; max-height: 220px; object-fit: contain; border-radius: 10px; border: 1px dashed var(--border-color); margin-bottom: 12px; background: #fafafa; cursor: pointer; display: none; }
     
     .dex-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .pikmin-card { background: #f9f9f9; border: 1.5px solid var(--border-color); border-radius: 10px; padding: 10px 4px; text-align: center; cursor: pointer; opacity: 0.35; filter: grayscale(100%); }
@@ -149,19 +148,21 @@
 
   <!-- 5. 本月任務 -->
   <div id="page-guide" class="page-tab">
-    <!-- 月份選擇器 (左右速切 + 點擊展開 12 宮格面板) -->
+    <!-- 月份選擇器 (灰色箭頭 + 灰階面板) -->
     <div class="content-card" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px;">
-      <button onclick="shiftMonth(-1)" style="background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; padding:4px 8px;">◀</button>
+      <button onclick="shiftMonth(-1)" style="background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; padding:4px 8px; color:#888;">◀</button>
       <div onclick="openMonthPickerModal()" style="font-weight:bold; font-size:15px; cursor:pointer; color:var(--primary-dark); display:flex; align-items:center; gap:4px;">
         <span id="currentMonthLabel">2026年 8月</span> ▾
       </div>
-      <button onclick="shiftMonth(1)" style="background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; padding:4px 8px;">▶</button>
+      <button onclick="shiftMonth(1)" style="background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; padding:4px 8px; color:#888;">▶</button>
     </div>
 
+    <!-- 攻略長圖 -->
     <div class="content-card">
       <div class="card-header"><h3>本月任務攻略長圖</h3></div>
-      <label class="upload-btn">📷 上傳 / 替換攻略長圖 <input type="file" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'img_guideMain', 'guide_preview')"></label>
-      <img id="guide_preview" class="ref-img-preview" style="display:none;" alt="預覽" onclick="openImageModal(this.src)">
+      <div id="box_guideMain" class="upload-box" onclick="triggerFileInput('file_guideMain')">📷 點擊上傳圖片</div>
+      <input type="file" id="file_guideMain" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'img_guideMain', 'guide_preview', 'box_guideMain')">
+      <img id="guide_preview" class="ref-img-preview" alt="預覽" onclick="openImageModal(this.src)">
     </div>
 
     <!-- 本月主題飾品皮克敏 -->
@@ -171,8 +172,9 @@
         <span id="progressText_g1" style="font-size:12px; font-weight:bold; color:var(--primary-dark);">0 / 8 (0%)</span>
       </div>
       <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar_g1"></div></div>
-      <label class="upload-btn">📷 上傳對照圖 <input type="file" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'img_g1', 'preview_g1')"></label>
-      <img id="preview_g1" class="ref-img-preview" style="display:none;" onclick="openImageModal(this.src)">
+      <div id="box_g1" class="upload-box" onclick="triggerFileInput('file_g1')">📷 點擊上傳圖片</div>
+      <input type="file" id="file_g1" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'img_g1', 'preview_g1', 'box_g1')">
+      <img id="preview_g1" class="ref-img-preview" onclick="openImageModal(this.src)">
       <div class="dex-grid" id="dexGroup1"></div>
     </div>
 
@@ -183,8 +185,9 @@
         <span id="progressText_g2" style="font-size:12px; font-weight:bold; color:var(--primary-dark);">0 / 8 (0%)</span>
       </div>
       <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar_g2"></div></div>
-      <label class="upload-btn">📷 上傳對照圖 <input type="file" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'img_g2', 'preview_g2')"></label>
-      <img id="preview_g2" class="ref-img-preview" style="display:none;" onclick="openImageModal(this.src)">
+      <div id="box_g2" class="upload-box" onclick="triggerFileInput('file_g2')">📷 點擊上傳圖片</div>
+      <input type="file" id="file_g2" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'img_g2', 'preview_g2', 'box_g2')">
+      <img id="preview_g2" class="ref-img-preview" onclick="openImageModal(this.src)">
       <div class="dex-grid" id="dexGroup2"></div>
     </div>
 
@@ -195,8 +198,9 @@
         <span id="progressText_g3" style="font-size:12px; font-weight:bold; color:var(--primary-dark);">0 / 8 (0%)</span>
       </div>
       <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar_g3"></div></div>
-      <label class="upload-btn">📷 上傳對照圖 <input type="file" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'img_g3', 'preview_g3')"></label>
-      <img id="preview_g3" class="ref-img-preview" style="display:none;" onclick="openImageModal(this.src)">
+      <div id="box_g3" class="upload-box" onclick="triggerFileInput('file_g3')">📷 點擊上傳圖片</div>
+      <input type="file" id="file_g3" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'img_g3', 'preview_g3', 'box_g3')">
+      <img id="preview_g3" class="ref-img-preview" onclick="openImageModal(this.src)">
       <div class="dex-grid" id="dexGroup3"></div>
     </div>
   </div>
@@ -267,7 +271,6 @@
       document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
       document.getElementById(`page-${tabId}`).classList.add('active');
       btnElem.classList.add('active');
-
       document.getElementById("fabButton").style.display = (tabId === 'guide') ? 'none' : 'flex';
     }
 
@@ -308,14 +311,14 @@
       document.getElementById("modalTitle").innerText = "選擇年份與月份";
       let content = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-          <button onclick="changePickerYear(-1)" style="padding:6px 12px; background:#eee; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">◀</button>
-          <span style="font-size:16px; font-weight:bold;" id="pickerYearText">${currentYear}年</span>
-          <button onclick="changePickerYear(1)" style="padding:6px 12px; background:#eee; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">▶</button>
+          <button onclick="changePickerYear(-1)" style="padding:6px 12px; background:#eee; border:none; border-radius:8px; cursor:pointer; font-weight:bold; color:#666;">◀</button>
+          <span style="font-size:16px; font-weight:bold; color:#333;" id="pickerYearText">${currentYear}年</span>
+          <button onclick="changePickerYear(1)" style="padding:6px 12px; background:#eee; border:none; border-radius:8px; cursor:pointer; font-weight:bold; color:#666;">▶</button>
         </div>
         <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;" id="pickerMonthsGrid">
       `;
       for(let m = 1; m <= 12; m++) {
-        let isSel = (currentYear === 2026 && currentMonth === m) ? 'background:var(--primary); color:white; font-weight:bold;' : 'background:#f9f9f9;';
+        let isSel = (currentYear === 2026 && currentMonth === m) ? 'background:var(--primary); color:white; font-weight:bold;' : 'background:#f9f9f9; color:#666;';
         content += `<button onclick="selectMonthDirect(${currentYear}, ${m})" style="padding:14px; border:1px solid #ddd; border-radius:10px; cursor:pointer; font-size:14px; ${isSel}">${m}月</button>`;
       }
       content += `</div>`;
@@ -330,7 +333,7 @@
       let grid = document.getElementById("pickerMonthsGrid");
       let html = "";
       for(let m = 1; m <= 12; m++) {
-        html += `<button onclick="selectMonthDirect(${pickerTempYear}, ${m})" style="padding:14px; border:1px solid #ddd; border-radius:10px; cursor:pointer; font-size:14px; background:#f9f9f9;">${m}月</button>`;
+        html += `<button onclick="selectMonthDirect(${pickerTempYear}, ${m})" style="padding:14px; border:1px solid #ddd; border-radius:10px; cursor:pointer; font-size:14px; background:#f9f9f9; color:#666;">${m}月</button>`;
       }
       grid.innerHTML = html;
     }
@@ -389,7 +392,7 @@
               <div class="friend-info-left">
                 ${getRankBadge(idx)}
                 <div>
-                  <div class="friend-name-row">${f.name} ${f.isMushroom ? '🍄' : ''}${f.isPostcard ? '✉️' : ''}</div>
+                  <div class="friend-name-row">${f.name}</div>
                   <div class="friend-sub-info">上次互動日期：${lastDate}</div>
                 </div>
               </div>
@@ -398,13 +401,11 @@
                 <div class="stat-sub-num">🍄 ${f.mushrooms.length} / ✉️ ${f.postcards.length}</div>
               </div>
             </div>
-            <button class="history-toggle-btn" onclick="toggleBox('hist_${f.id}')">歷史紀錄 ▾</button>
-            <div class="history-content-box" id="hist_${f.id}">
-              ${f.mushrooms.map(m => `<div class="history-item-row"><span>${m.date} | ${m.type}</span></div>`).join('')}
-              ${f.postcards.map(p => `<div class="history-item-row"><span>${p.date}</span><span>${p.status}</span></div>`).join('')}
-            </div>
             <div class="card-action-row">
-              <button class="record-btn" onclick="openMushroomRecordModalForFriend('${f.name}')">記錄</button>
+              <div class="record-btn-group">
+                <button class="record-btn" onclick="openMushroomRecordModalForFriend('${f.name}')">揪菇紀錄</button>
+                <button class="record-btn record-btn-postcard" onclick="openPostcardModalFor('${f.name}')">寄明信片</button>
+              </div>
             </div>
           `
         );
@@ -412,7 +413,7 @@
       });
     }
 
-    // 2. 蘑菇筆記
+    // 2. 蘑菇筆記 (補上記錄按鈕)
     function renderMushroomList() {
       const container = document.getElementById("mushroomListContainer");
       container.innerHTML = "";
@@ -441,10 +442,10 @@
           </div>
           <button class="history-toggle-btn" onclick="toggleBox('mush_hist_${f.id}')">揪菇記錄 ▾</button>
           <div class="history-content-box" id="mush_hist_${f.id}">
-            <div style="font-size:12px; font-weight:bold; color:var(--primary-dark); margin-bottom:6px;">類型統計：${statsSummaryStr || '尚無紀錄'}</div>
-            ${f.mushrooms.length === 0 ? '<div style="font-size:12px; color:#888;">尚無紀錄</div>' : f.mushrooms.map(m => `
-              <div class="history-item-row"><span>${m.date} | ${m.type}</span><span>${m.reward}</span></div>
-            `).join('')}
+            <div style="font-size:12px; font-weight:bold; color:var(--text-sub); line-height:1.5;">${statsSummaryStr || '尚無紀錄'}</div>
+          </div>
+          <div class="card-action-row">
+            <button class="record-btn" onclick="openMushroomRecordModalForFriend('${f.name}')">記錄</button>
           </div>
         `;
         container.appendChild(card);
@@ -477,21 +478,15 @@
               <div class="stat-sub-num">收到 ${receivedCount} / 回寄 ${returnCount}</div>
             </div>
           </div>
-          <button class="history-toggle-btn" onclick="toggleBox('pc_hist_${f.id}')" style="color:var(--primary); font-weight:bold;">明信片歷史紀錄 ▾</button>
-          <div class="history-content-box" id="pc_hist_${f.id}">
-            ${f.postcards.length === 0 ? '<div style="font-size:12px; color:#888;">尚無紀錄</div>' : f.postcards.map(p => `
-              <div class="history-item-row"><span>${p.date}</span><span style="font-weight:bold; color:var(--primary-dark);">${p.status}</span></div>
-            `).join('')}
-          </div>
           <div class="card-action-row">
-            <button class="record-btn" onclick="openPostcardModalFor('${f.name}')">記錄</button>
+            <button class="record-btn record-btn-postcard" onclick="openPostcardModalFor('${f.name}')">記錄</button>
           </div>
         `;
         container.appendChild(card);
       });
     }
 
-    // 4. 課長筆記分類
+    // 4. 課長筆記
     function renderStatsList() {
       document.getElementById("ticketStockVal").innerText = `${appData.tickets} 張`;
       let totalNT = appData.stats.reduce((sum, item) => sum + (item.price || 0), 0);
@@ -500,10 +495,10 @@
       container.innerHTML = "";
 
       const categories = [
-        { title: "🔥 熱門常用禮包", key: "hot" },
-        { title: "📦 容量擴充類", key: "expand" },
-        { title: "🪙 金幣禮包類", key: "coin" },
-        { title: "🎁 活動 / 票券類", key: "event" },
+        { title: "熱門常用禮包", key: "hot" },
+        { title: "容量擴充類", key: "expand" },
+        { title: "金幣禮包類", key: "coin" },
+        { title: "活動 / 票券類", key: "event" },
         { title: "其他", key: "other" }
       ];
 
@@ -513,9 +508,16 @@
         let card = document.createElement("div");
         card.className = "content-card";
         card.innerHTML = `
-          <div class="card-header"><h3>${cat.title}</h3><span style="font-size:12px; font-weight:bold; color:#e65100;">💰 累積金額：NT$ ${catTotal}</span></div>
-          ${items.length === 0 ? '<div style="font-size:12px; color:#888;">尚無紀錄</div>' : items.map(it => `
-            <div class="history-item-row"><span>${it.date} | ${it.name}</span><span style="font-weight:bold; color:#e65100;">NT$ ${it.price}</span></div>
+          <div class="card-header"><h3>${cat.title}</h3><span style="font-size:12px; font-weight:bold; color:#e65100;">NT$ ${catTotal}</span></div>
+          ${items.length === 0 ? '<div style="font-size:12px; color:#888;">尚無紀錄</div>' : items.map((it, i) => `
+            <div class="history-item-row">
+              <span>${it.date} | ${it.name}</span>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-weight:bold; color:#e65100;">NT$ ${it.price}</span>
+                <button onclick="openEditStatModal(${i})" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:11px; font-weight:bold;">修改</button>
+                <button onclick="deleteStatRecord(${i})" style="background:none; border:none; color:#f44336; cursor:pointer; font-size:11px; font-weight:bold;">刪除</button>
+              </div>
+            </div>
           `).join('')}
         `;
         container.appendChild(card);
@@ -543,7 +545,7 @@
       }
     }
 
-    // 5. 8色圖鑑渲染 (支援月份)
+    // 5. 8色圖鑑渲染
     const pikmin8Colors = [
       { name: "紅皮", icon: "❤️" }, { name: "黃皮", icon: "💛" },
       { name: "藍皮", icon: "💙" }, { name: "紫皮", icon: "💜" },
@@ -582,19 +584,41 @@
       ['img_guideMain', 'img_g1', 'img_g2', 'img_g3'].forEach(key => {
         const fullKey = `${mKey}_${key}`;
         let previewId = key === 'img_guideMain' ? 'guide_preview' : `preview_${key.replace('img_', '')}`;
+        let boxId = key === 'img_guideMain' ? 'box_guideMain' : `box_${key.replace('img_', '')}`;
         let img = document.getElementById(previewId);
-        if(img) {
+        let box = document.getElementById(boxId);
+        if(img && box) {
           if (appData.images[fullKey]) {
             img.src = appData.images[fullKey];
             img.style.display = "block";
+            box.style.display = "none";
           } else {
             img.style.display = "none";
+            box.style.display = "block";
           }
         }
       });
     }
 
-    function handleImageUpload(event, key, previewId) {
+    function triggerFileInput(fileInputId) {
+      let allFiles = document.querySelectorAll(`input[type="file"]`);
+      allFiles.forEach(input => {
+        if(input.id === fileInputId || (!input.id && fileInputId === '')) {
+          input.click();
+        }
+      });
+    }
+
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('upload-box')) {
+        let nextInput = e.target.nextElementSibling;
+        if (nextInput && nextInput.tagName === 'INPUT' && nextInput.type === 'file') {
+          nextInput.click();
+        }
+      }
+    });
+
+    function handleImageUpload(event, key, previewId, boxId) {
       const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
@@ -615,7 +639,6 @@
     function toggleBox(id) { document.getElementById(id).classList.toggle("open"); }
     function closeGlobalModal() { document.getElementById("globalModal").classList.remove("open"); }
 
-    // 新增皮友 Modal
     function openAddFriendModal() {
       document.getElementById("modalTitle").innerText = "新增皮友";
       document.getElementById("modalBodyContent").innerHTML = `
@@ -676,7 +699,7 @@
       closeGlobalModal();
     }
 
-    // 課長筆記新增 Modal
+    // 課長筆記新增與修改
     function openStatModal() {
       document.getElementById("modalTitle").innerText = "錢錢變成喜歡的樣子";
       let today = new Date();
@@ -686,43 +709,43 @@
         <div class="form-group">
           <label class="form-label" style="margin-bottom:8px;">選擇官方品項與方案</label>
           
-          <div style="font-size:13px; font-weight:bold; color:var(--primary-dark); margin:8px 0 4px 0;">🔥 熱門常用禮包</div>
+          <div style="font-size:13px; font-weight:bold; color:var(--primary-dark); margin:8px 0 4px 0;">熱門常用禮包</div>
           <div class="chip-group">
-            <div class="chip selected" onclick="quickStat('hot', '蘑菇高手包', 670, 26, '蘑菇高手包 (NT$ 670 / +26券)')">蘑菇高手包 (NT$ 670 / +26券)</div>
+            <div class="chip selected" onclick="quickStat('hot', '蘑菇高手包', 670, 26)">蘑菇高手包 (NT$ 670 / +26券)</div>
           </div>
 
           <details style="margin-top:10px; background:#fafafa; padding:8px; border-radius:10px; border:1px solid #eee;">
-            <summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">📦 容量擴充類</summary>
+            <summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">容量擴充類</summary>
             <div class="chip-group" style="margin-top:6px;">
-              <div class="chip" onclick="quickStat('expand', '精華攜帶空間特殊包', 330, 0, '精華攜帶空間特殊包 (NT$330)')">精華攜帶空間特殊包 (NT$330)</div>
-              <div class="chip" onclick="quickStat('expand', '花瓣攜帶空間特殊包', 330, 0, '花瓣攜帶空間特殊包 (NT$330)')">花瓣攜帶空間特殊包 (NT$330)</div>
-              <div class="chip" onclick="quickStat('expand', '花苗攜帶空間特殊包', 330, 0, '花苗攜帶空間特殊包 (NT$330)')">花苗攜帶空間特殊包 (NT$330)</div>
-              <div class="chip" onclick="quickStat('expand', '皮克敏收藏特殊包（+200）', 330, 0, '皮克敏收藏特殊包（+200） (NT$330)')">皮克敏收藏特殊包（+200） (NT$330)</div>
-              <div class="chip" onclick="quickStat('expand', '皮克敏收藏特殊包（+500）', 670, 0, '皮克敏收藏特殊包（+500） (NT$670)')">皮克敏收藏特殊包（+500） (NT$670)</div>
-              <div class="chip" onclick="quickStat('expand', '明信片攜帶空間特殊包', 670, 0, '明信片攜帶空間特殊包 (NT$670)')">明信片攜帶空間特殊包 (NT$670)</div>
-              <div class="chip" onclick="quickStat('expand', '盆栽欄位特殊包', 670, 0, '盆栽欄位特殊包 (NT$670)')">盆栽欄位特殊包 (NT$670)</div>
+              <div class="chip" onclick="quickStat('expand', '精華攜帶空間特殊包', 330, 0)">精華攜帶空間特殊包 (NT$330)</div>
+              <div class="chip" onclick="quickStat('expand', '花瓣攜帶空間特殊包', 330, 0)">花瓣攜帶空間特殊包 (NT$330)</div>
+              <div class="chip" onclick="quickStat('expand', '花苗攜帶空間特殊包', 330, 0)">花苗攜帶空間特殊包 (NT$330)</div>
+              <div class="chip" onclick="quickStat('expand', '皮克敏收藏特殊包（+200）', 330, 0)">皮克敏收藏特殊包（+200） (NT$330)</div>
+              <div class="chip" onclick="quickStat('expand', '皮克敏收藏特殊包（+500）', 670, 0)">皮克敏收藏特殊包（+500） (NT$670)</div>
+              <div class="chip" onclick="quickStat('expand', '明信片攜帶空間特殊包', 670, 0)">明信片攜帶空間特殊包 (NT$670)</div>
+              <div class="chip" onclick="quickStat('expand', '盆栽欄位特殊包', 670, 0)">盆栽欄位特殊包 (NT$670)</div>
             </div>
           </details>
 
           <details style="margin-top:8px; background:#fafafa; padding:8px; border-radius:10px; border:1px solid #eee;">
-            <summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">🪙 金幣禮包類</summary>
+            <summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">金幣禮包類</summary>
             <div class="chip-group" style="margin-top:6px;">
-              <div class="chip" onclick="quickStat('coin', '1,250 枚金幣', 330, 0, '1,250 枚金幣 (NT$330)')">1,250 枚金幣 (NT$330)</div>
-              <div class="chip" onclick="quickStat('coin', '1,600 枚金幣', 330, 0, '1,600 枚金幣 (NT$330)')">1,600 枚金幣 (NT$330)</div>
-              <div class="chip" onclick="quickStat('coin', '2,600 枚金幣', 670, 0, '2,600 枚金幣 (NT$670)')">2,600 枚金幣 (NT$670)</div>
-              <div class="chip" onclick="quickStat('coin', '5,400 枚金幣', 1320, 0, '5,400 枚金幣 (NT$1,320)')">5,400 枚金幣 (NT$1,320)</div>
-              <div class="chip" onclick="quickStat('coin', '15,000 枚金幣', 3290, 0, '15,000 枚金幣 (NT$3,290)')">15,000 枚金幣 (NT$3,290)</div>
-              <div class="chip" onclick="quickStat('coin', '35,000 枚金幣', 7190, 0, '35,000 枚金幣 (NT$7,190)')">35,000 枚金幣 (NT$7,190)</div>
+              <div class="chip" onclick="quickStat('coin', '1,250 枚金幣', 330, 0)">1,250 枚金幣 (NT$330)</div>
+              <div class="chip" onclick="quickStat('coin', '1,600 枚金幣', 330, 0)">1,600 枚金幣 (NT$330)</div>
+              <div class="chip" onclick="quickStat('coin', '2,600 枚金幣', 670, 0)">2,600 枚金幣 (NT$670)</div>
+              <div class="chip" onclick="quickStat('coin', '5,400 枚金幣', 1320, 0)">5,400 枚金幣 (NT$1,320)</div>
+              <div class="chip" onclick="quickStat('coin', '15,000 枚金幣', 3290, 0)">15,000 枚金幣 (NT$3,290)</div>
+              <div class="chip" onclick="quickStat('coin', '35,000 枚金幣', 7190, 0)">35,000 枚金幣 (NT$7,190)</div>
             </div>
           </details>
 
           <details style="margin-top:8px; background:#fafafa; padding:8px; border-radius:10px; border:1px solid #eee;">
-            <summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">🎁 活動 / 票券類</summary>
+            <summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">活動 / 票券類</summary>
             <div class="chip-group" style="margin-top:6px;">
-              <div class="chip" onclick="quickStat('event', '活動高級入場券包', 430, 0, '活動高級入場券包 (NT$430)')">活動高級入場券包 (NT$430)</div>
-              <div class="chip" onclick="quickStat('event', '活動完成包', 670, 0, '活動完成包 (NT$670)')">活動完成包 (NT$670)</div>
-              <div class="chip" onclick="quickStat('event', '特殊探測器包', 670, 0, '特殊探測器包 (NT$670)')">特殊探測器包 (NT$670)</div>
-              <div class="chip" onclick="quickStat('event', '蘑菇戰鬥大聲公特殊包', 670, 0, '蘑菇戰鬥大聲公特殊包 (NT$670)')">蘑菇戰鬥大聲公特殊包 (NT$670)</div>
+              <div class="chip" onclick="quickStat('event', '活動高級入場券包', 430, 0)">活動高級入場券包 (NT$430)</div>
+              <div class="chip" onclick="quickStat('event', '活動完成包', 670, 0)">活動完成包 (NT$670)</div>
+              <div class="chip" onclick="quickStat('event', '特殊探測器包', 670, 0)">特殊探測器包 (NT$670)</div>
+              <div class="chip" onclick="quickStat('event', '蘑菇戰鬥大聲公特殊包', 670, 0)">蘑菇戰鬥大聲公特殊包 (NT$670)</div>
             </div>
           </details>
 
@@ -736,10 +759,6 @@
           </div>
         </details>
 
-        <div class="form-group" style="background:#f9f9f9; padding:10px; border-radius:8px; margin-top:10px;">
-          已選定：<span id="st_previewText" style="font-weight:bold; color:var(--primary-dark);">蘑菇高手包 (NT$ 670 | +26張券)</span>
-        </div>
-
         <input type="hidden" id="st_cat" value="hot">
         <input type="hidden" id="st_name" value="蘑菇高手包">
         <input type="hidden" id="st_price" value="670">
@@ -749,14 +768,13 @@
       document.getElementById("globalModal").classList.add("open");
     }
 
-    function quickStat(cat, name, price, tickets, previewStr) {
+    function quickStat(cat, name, price, tickets) {
       document.getElementById("st_cat").value = cat;
       document.getElementById("st_name").value = name;
       document.getElementById("st_price").value = price;
       document.getElementById("st_tickets").value = tickets;
       document.getElementById("st_otherName").value = "";
       document.getElementById("st_otherPrice").value = "";
-      document.getElementById("st_previewText").innerText = previewStr;
     }
 
     function submitStatRecord() {
@@ -775,7 +793,7 @@
       }
 
       let dVal = document.getElementById("st_date").value;
-      let mmdd = dVal ? `${dVal.slice(5,7)}/${dVal.slice(8,10)}` : "08/18";
+      let mmdd = dVal ? `${dVal.slice(5,7)}/${dVal.slice(8,10)}` : "08/19";
 
       appData.tickets += tickets;
       appData.stats.push({ date: mmdd, category: cat, name: name, price: price });
@@ -783,12 +801,42 @@
       closeGlobalModal();
     }
 
-    // 新增打菇紀錄 (一般菇 / 元素菇分類)
+    function openEditStatModal(index) {
+      let item = appData.stats[index];
+      document.getElementById("modalTitle").innerText = "修改消費紀錄";
+      document.getElementById("modalBodyContent").innerHTML = `
+        <div class="form-group"><label class="form-label">品項名稱</label><input type="text" id="edit_st_name" class="form-input" value="${item.name}"></div>
+        <div class="form-group"><label class="form-label">金額 (NT$)</label><input type="number" id="edit_st_price" class="form-input" value="${item.price}"></div>
+        <button class="btn-submit" onclick="submitEditStat(${index})">確認修改</button>
+      `;
+      document.getElementById("globalModal").classList.add("open");
+    }
+
+    function submitEditStat(index) {
+      let newName = document.getElementById("edit_st_name").value.trim();
+      let newPrice = parseInt(document.getElementById("edit_st_price").value || 0);
+      if(!newName) { alert("請輸入名稱"); return; }
+      appData.stats[index].name = newName;
+      appData.stats[index].price = newPrice;
+      saveData();
+      closeGlobalModal();
+    }
+
+    function deleteStatRecord(index) {
+      if(confirm("確定要刪除這筆消費紀錄嗎？")) {
+        appData.stats.splice(index, 1);
+        saveData();
+      }
+    }
+
+    // 新增打菇紀錄 (支援帶入名字)
     function openMushroomRecordModal() { openMushroomRecordModalForFriend(""); }
     function openMushroomRecordModalForFriend(name) {
       document.getElementById("modalTitle").innerText = "新增打菇紀錄";
+      let nameInputHtml = name ? `<input type="text" id="m_name" class="form-input" value="${name}" readonly style="background:#eee; color:#555;" >` : `<input type="text" id="m_name" class="form-input" placeholder="輸入名稱">`;
+
       document.getElementById("modalBodyContent").innerHTML = `
-        <div class="form-group"><label class="form-label">皮友名字</label><input type="text" id="m_name" class="form-input" value="${name}" placeholder="輸入名稱"></div>
+        <div class="form-group"><label class="form-label">皮友名字</label>${nameInputHtml}</div>
         <div class="form-group"><label class="form-label">蘑菇類型</label>
           <div class="chip-group"><div class="chip selected" onclick="selectChip(this, 'm_type')">一般活動菇</div><div class="chip" onclick="selectChip(this, 'm_type')">巨大活動菇</div></div>
           <input type="hidden" id="m_type" value="一般活動菇">
@@ -811,7 +859,6 @@
           </details>
         </div>
         <div class="form-group"><label style="font-size:13px; font-weight:bold; color:#555;"><input type="checkbox" id="m_ticket"> 有使用蘑菇券</label></div>
-        <div class="form-group"><label class="form-label">我揪的皮友</label><input type="text" id="m_co" class="form-input" placeholder="輸入名稱"></div>
         <button class="btn-submit" onclick="submitMushroomRecord()">確認</button>
       `;
       document.getElementById("globalModal").classList.add("open");
@@ -836,8 +883,10 @@
     function openPostcardModal() { openPostcardModalFor(""); }
     function openPostcardModalFor(name) {
       document.getElementById("modalTitle").innerText = "新增明信片紀錄";
+      let nameInputHtml = name ? `<input type="text" id="pc_name" class="form-input" value="${name}" readonly style="background:#eee; color:#555;" >` : `<input type="text" id="pc_name" class="form-input" placeholder="輸入名稱">`;
+
       document.getElementById("modalBodyContent").innerHTML = `
-        <div class="form-group"><label class="form-label">皮友名字</label><input type="text" id="pc_name" class="form-input" value="${name}" placeholder="輸入名稱"></div>
+        <div class="form-group"><label class="form-label">皮友名字</label>${nameInputHtml}</div>
         <div class="form-group"><label class="form-label">明信片狀態</label>
           <div class="chip-group"><div class="chip selected" onclick="selectChip(this, 'pc_status')">📥 收到已回寄</div><div class="chip" onclick="selectChip(this, 'pc_status')">📥 收到未回寄</div></div>
           <input type="hidden" id="pc_status" value="📥 收到已回寄">
