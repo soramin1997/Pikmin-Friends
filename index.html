@@ -16,7 +16,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 90px; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 100px; }
 
     /* 頂部 Header */
     header {
@@ -106,11 +106,8 @@
 
   <!-- 1. 皮友列表頁 -->
   <div id="tab-friends" class="tab-content active">
-    <ul class="friend-list">
-      <li class="friend-card"><span class="rank-badge rank-1">🥇</span><span class="friend-name">皮克敏大師</span></li>
-      <li class="friend-card"><span class="rank-badge rank-2">🥈</span><span class="friend-name">走路小天才</span></li>
-      <li class="friend-card"><span class="rank-badge rank-3">🥉</span><span class="friend-name">拔草專家</span></li>
-      <li class="friend-card"><span class="rank-badge rank-other">4</span><span class="friend-name">紅皮克敏</span></li>
+    <ul class="friend-list" id="friend-list-container">
+      <!-- 舊資料會動態載入至此 -->
     </ul>
   </div>
 
@@ -120,23 +117,23 @@
       <span>🗺️ 查看當月任務攻略長圖</span>
       <span style="color: var(--pikmin-green);">展開 ➔</span>
     </div>
-    <p style="color: var(--text-sub);">蘑菇打菇歷史紀錄區塊...</p>
+    <p style="color: var(--text-sub);">蘑菇打菇歷史紀錄...</p>
   </div>
 
   <!-- 3. 明信片紀錄頁 -->
   <div id="tab-postcards" class="tab-content">
     <div style="display:flex; gap:8px; margin-bottom:12px;">
       <button style="padding:6px 12px; border-radius:20px; border:none; background:#E8F8EA; color:#1D6B2A;">全部</button>
-      <button style="padding:6px 12px; border-radius:20px; border:none; background:#FFF3CD; color:#856404;">⏳ 待回寄 (2)</button>
+      <button style="padding:6px 12px; border-radius:20px; border:none; background:#FFF3CD; color:#856404;">⏳ 待回寄</button>
     </div>
     <p style="color: var(--text-sub);">明信片互動狀態清單...</p>
   </div>
 
-  <!-- 4. 統計與記帳本 -->
+  <!-- 4. 課長記錄簿 -->
   <div id="tab-stats" class="tab-content">
     <div style="background:#fff; padding:16px; border-radius:12px; margin-bottom:12px;">
-      <h3>🍄 庫存蘑菇券：18 張</h3>
-      <p style="color:var(--text-sub); font-size:14px; margin-top:4px;">平均成本：NT$ 25.8 / 張</p>
+      <h3 id="ticket-count-display">🍄 庫存蘑菇券：0 張</h3>
+      <p style="color:var(--text-sub); font-size:14px; margin-top:4px;">平均單張成本計算中...</p>
     </div>
     <button class="btn-green" onclick="openStoreModal()">＋ 新增儲值紀錄 (預設 Web 商店)</button>
   </div>
@@ -144,20 +141,20 @@
   <!-- 底部懸浮膠囊 Floating Dock -->
   <div class="dock-container">
     <div class="dock">
-      <!-- 1. 皮友列表 (清單 Icon) -->
+      <!-- 1. 皮友列表 -->
       <button class="dock-tab active" onclick="switchTab('friends', '👥 皮友列表', this)">
-        <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
       </button>
-      <!-- 2. 蘑菇紀錄 (類別 Icon) -->
+      <!-- 2. 蘑菇紀錄 -->
       <button class="dock-tab" onclick="switchTab('mushrooms', '🍄 蘑菇紀錄', this)">
-        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 3C7.03 3 3 6.06 3 10c0 2.21 1.28 4.16 3.25 5.38.22 1.83 1.13 4.62 2.25 5.62 1.81 1.62 5.19 1.62 7 0 1.12-1 2.03-3.79 2.25-5.62C19.72 14.16 21 12.21 21 10c0-3.94-4.03-7-9-7zm0 15c-1.66 0-3-1.34-3-3h6c0 1.66-1.34 3-3 3z"/></svg>
       </button>
-      <!-- 3. 明信片紀錄 (信封 Icon) -->
+      <!-- 3. 明信片紀錄 -->
       <button class="dock-tab" onclick="switchTab('postcards', '✉️ 明信片紀錄', this)">
         <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
       </button>
-      <!-- 4. 統計與記帳本 (圖表 Icon) -->
-      <button class="dock-tab" onclick="switchTab('stats', '📊 統計與記帳本', this)">
+      <!-- 4. 課長記錄簿 -->
+      <button class="dock-tab" onclick="switchTab('stats', '📊 課長記錄簿', this)">
         <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
       </button>
     </div>
@@ -173,9 +170,8 @@
         <h3>📅 當月活動任務攻略圖</h3>
         <button class="icon-btn" onclick="closeModal('modal-task')">✕</button>
       </div>
-      <p style="font-size:12px; color:var(--text-sub);">點擊圖片可放大或替換圖片</p>
-      <img src="https://via.placeholder.com/400x800?text=Pikmin+Task+Chart" class="task-img-preview" alt="當月任務攻略">
-      <button class="btn-green" style="background:#f0f0f0; color:#333;" onclick="alert('開啟上傳檔')">📷 更換本月圖片</button>
+      <img src="https://via.placeholder.com/400x800?text=Pikmin+Task+Chart" class="task-img-preview" id="task-image" alt="當月任務攻略">
+      <button class="btn-green" style="background:#f0f0f0; color:#333; margin-top:12px;" onclick="alert('點擊上傳新圖片')">📷 更換本月圖片</button>
     </div>
   </div>
 
@@ -200,16 +196,16 @@
         <h3>🛒 紀錄儲值（Web 商店項目）</h3>
         <button class="icon-btn" onclick="closeModal('modal-store')">✕</button>
       </div>
-      <p style="font-size:13px; color:var(--text-sub); margin-bottom:12px;">點選下方預設禮包自動填入數據：</p>
+      <p style="font-size:13px; color:var(--text-sub); margin-bottom:12px;">點選預設禮包自動填入數據：</p>
       
-      <button class="btn-green" style="text-align:left; margin-bottom:8px;" onclick="selectPackage(670, 26)">
+      <button class="btn-green" style="text-align:left; margin-bottom:8px;" onclick="addStoreRecord(670, 26)">
         <strong>🍄 蘑菇高手包</strong><br>
         <small>NT$ 670 / 26 張菇券 + 500 金幣</small>
       </button>
       
-      <button class="btn-green" style="text-align:left; background:#f5f5f5; color:#333; margin-bottom:8px;" onclick="selectPackage(670, 8)">
+      <button class="btn-green" style="text-align:left; background:#f5f5f5; color:#333; margin-bottom:8px;" onclick="addStoreRecord(670, 8)">
         <strong>🌱 皮克敏收藏特殊包</strong><br>
-        <small>NT$ 670 / 8 張菇券 + 500 金幣 + 500 容量</small>
+        <small>NT$ 670 / 8 張菇券 + 500 金幣</small>
       </button>
 
       <a href="https://store.pikminbloom.com/" target="_blank" style="display:block; text-align:center; margin-top:12px; color:var(--pikmin-green); text-decoration:none; font-size:14px; font-weight:600;">
@@ -219,7 +215,24 @@
   </div>
 
   <script>
-    // 切換頁籤
+    // 1. 自動相容檢索舊的 localStorage 資料
+    function loadExistingFriends() {
+      const possibleKeys = ['pikmin_friends', 'friends', 'friendsData', 'pikminFriends'];
+      for (let key of possibleKeys) {
+        const data = localStorage.getItem(key);
+        if (data) {
+          try {
+            const parsed = JSON.parse(data);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          } catch(e){}
+        }
+      }
+      return [];
+    }
+
+    let friendsData = loadExistingFriends();
+
+    // 2. 切換頁籤
     function switchTab(tabId, title, btn) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.dock-tab').forEach(el => el.classList.remove('active'));
@@ -229,16 +242,54 @@
       document.getElementById('page-title').innerText = title;
     }
 
-    // 開啟/關閉 Modal
+    // 3. 渲染皮友列表
+    function renderFriends() {
+      const container = document.getElementById('friend-list-container');
+      if (!container) return;
+
+      if (friendsData.length === 0) {
+        container.innerHTML = '<li style="text-align:center; padding:20px; color:#888;">目前尚無皮友紀錄，點擊右下角 ＋ 開始新增</li>';
+        return;
+      }
+
+      friendsData.sort((a, b) => (b.count || b.interactions || 0) - (a.count || a.interactions || 0));
+
+      container.innerHTML = friendsData.map((friend, index) => {
+        let rankClass = 'rank-other';
+        let rankIcon = index + 1;
+
+        if (index === 0) { rankClass = 'rank-1'; rankIcon = '🥇'; }
+        else if (index === 1) { rankClass = 'rank-2'; rankIcon = '🥈'; }
+        else if (index === 2) { rankClass = 'rank-3'; rankIcon = '🥉'; }
+
+        const name = friend.name || friend.nickname || '未命名皮友';
+
+        return `
+          <li class="friend-card">
+            <span class="rank-badge ${rankClass}">${rankIcon}</span>
+            <span class="friend-name">${name}</span>
+          </li>
+        `;
+      }).join('');
+    }
+
+    // 4. 開啟 / 關閉 Modal
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function openStoreModal() { openModal('modal-store'); }
 
-    // 選取預設儲值禮包
-    function selectPackage(price, tickets) {
-      alert(`已選擇預設禮包：NT$ ${price}，增加 ${tickets} 張菇券！`);
+    // 5. 新增儲值紀錄
+    function addStoreRecord(price, tickets) {
+      let storeLogs = JSON.parse(localStorage.getItem('pikmin_store')) || [];
+      storeLogs.push({ date: new Date().toLocaleDateString(), price, tickets });
+      localStorage.setItem('pikmin_store', JSON.stringify(storeLogs));
+      alert(`已新增儲值：NT$ ${price}，增加 ${tickets} 張菇券！`);
       closeModal('modal-store');
     }
+
+    window.onload = function() {
+      renderFriends();
+    };
   </script>
 </body>
 </html>
