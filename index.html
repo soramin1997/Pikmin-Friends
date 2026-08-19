@@ -5,59 +5,108 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
   <title>皮友們集合囉！</title>
   <style>
-    :root { --bg-color: #f5f6f8; --card-bg: #ffffff; --primary: #00b074; --yellow: #ffc107; --primary-dark: #008f5d; --text-main: #333333; --text-sub: #777777; --border-color: #eeeeee; --radius: 16px; }
+    :root {
+      --bg-color: #f5f6f8;
+      --card-bg: #ffffff;
+      --primary: #00b074;
+      --yellow: #ffc107;
+      --primary-dark: #008f5d;
+      --text-main: #333333;
+      --text-sub: #777777;
+      --border-color: #eeeeee;
+      --radius: 16px;
+    }
     input, select, textarea { font-size: 16px !important; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-main); padding-top: 65px; padding-bottom: 110px; max-width: 600px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+    
     header { position: fixed; top: 0; left: 0; width: 100%; background: var(--bg-color); display: flex; justify-content: center; align-items: center; padding: 14px 16px; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-    .header-title { font-size: 18px; font-weight: bold; }
+    .header-title { font-size: 18px; font-weight: bold; color: #000; }
+
     .page-tab { display: none; }
     .page-tab.active { display: block; }
-    .sticky-friends-header { position: sticky; top: 55px; background: var(--bg-color); z-index: 150; padding-top: 8px; }
+
+    .sticky-friends-header { position: sticky; top: 55px; background: var(--bg-color); z-index: 150; padding-top: 8px; padding-bottom: 8px; }
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 10px; }
+    .search-input { flex: 1; padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; background: #fff; }
     .tab-switch { display: flex; background: #eee; padding: 4px; border-radius: 10px; margin-bottom: 8px; }
     .tab-btn { flex: 1; padding: 8px; border: none; background: none; font-size: 13px; font-weight: bold; color: #777; border-radius: 8px; cursor: pointer; }
     .tab-btn.active { background: #fff; color: var(--primary-dark); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .filter-bar { margin-bottom: 10px; }
-    .search-input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; }
-    .friend-card { background: var(--card-bg); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-    .friend-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-    .rank-badge { width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; color: #fff; }
+    
+    .rank-badge { width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
     .rank-1 { background: linear-gradient(135deg, #ffd700, #ff8c00); }
     .rank-2 { background: linear-gradient(135deg, #e0e0e0, #9e9e9e); }
     .rank-3 { background: linear-gradient(135deg, #ffb74d, #d7ccc8); }
     .rank-normal { background: #eee; color: #666; }
-    .friend-name-row { font-size: 16px; font-weight: bold; }
-    .friend-sub-info { font-size: 12px; color: var(--text-sub); }
+
+    .friend-card { background: var(--card-bg); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .friend-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .friend-info-left { display: flex; align-items: center; gap: 10px; }
+    .friend-name-row { font-size: 16px; font-weight: bold; color: #222; }
+    .friend-sub-info { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+    .friend-stats-right { text-align: right; }
     .stat-main-num { font-size: 16px; font-weight: bold; color: var(--primary-dark); }
-    .stat-sub-num { font-size: 11px; color: var(--text-sub); }
+    .stat-sub-num { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+    
     .history-toggle-btn { background: none; border: none; color: var(--text-sub); font-size: 13px; font-weight: bold; cursor: pointer; margin-top: 8px; }
     .history-content-box { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-color); }
     .history-content-box.open { display: block; }
-    .history-item-row { font-size: 12px; color: #555; background: #fafafa; padding: 6px 10px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; }
+    .history-item-row { font-size: 12px; color: #555; background: #fafafa; padding: 6px 10px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+    
     .card-action-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
-    .record-btn { background: var(--yellow); color: white; border: none; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: bold; cursor: pointer; }
-    .record-btn-postcard { background: var(--primary); }
-    .bottom-nav-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; }
+    .record-btn-group { display: flex; gap: 6px; }
+    .record-btn { background: var(--yellow); color: white; border: none; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(255,193,7,0.3); }
+    .record-btn-postcard { background: var(--primary); box-shadow: 0 2px 6px rgba(0,176,116,0.3); }
+    
+    .summary-row { display: flex; gap: 12px; margin-bottom: 16px; }
+    .summary-card { flex: 1; background: #ffffff; border-radius: var(--radius); padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .summary-title { font-size: 12px; font-weight: bold; margin-bottom: 4px; }
+    .summary-value { font-size: 18px; font-weight: bold; }
+    
+    .content-card { background: var(--card-bg); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .card-header h3 { font-size: 15px; color: #222; }
+    .progress-bar-bg { background: #eee; border-radius: 8px; height: 8px; overflow: hidden; margin-bottom: 12px; }
+    .progress-bar-fill { background: var(--primary); height: 100%; width: 0%; transition: width 0.3s ease; }
+    
+    .upload-box { border: 2px dashed #ccc; border-radius: 12px; padding: 24px; text-align: center; background: #fafafa; cursor: pointer; margin-bottom: 12px; color: var(--text-sub); font-size: 13px; font-weight: bold; }
+    .upload-box:hover { border-color: var(--primary); color: var(--primary-dark); }
+    .ref-img-preview { width: 100%; max-height: 220px; object-fit: contain; border-radius: 10px; border: 1px dashed var(--border-color); margin-bottom: 12px; background: #fafafa; display: none; cursor: pointer; }
+    
+    .dex-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .pikmin-card { background: #f9f9f9; border: 1.5px solid var(--border-color); border-radius: 10px; padding: 10px 4px; text-align: center; cursor: pointer; opacity: 0.35; filter: grayscale(100%); }
+    .pikmin-card.collected { opacity: 1; filter: grayscale(0%); border-color: var(--primary); background: #e1f5fe; }
+    .pikmin-icon { font-size: 22px; margin-bottom: 2px; }
+    .pikmin-name { font-size: 11px; font-weight: bold; color: #333; }
+
+    /* 完美的底部導覽與 FAB 按鈕定位，絕不重疊崩壞 */
+    .bottom-nav-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; z-index: 1000; }
     .bottom-nav { background: #ffffff; padding: 8px 16px; border-radius: 30px; display: flex; gap: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-    .nav-item { background: none; border: none; cursor: pointer; padding: 6px; }
-    .nav-item svg { width: 24px; height: 24px; fill: #cccccc; }
+    .nav-item { background: none; border: none; cursor: pointer; padding: 6px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+    .nav-item svg { width: 24px; height: 24px; fill: #cccccc; transition: fill 0.2s; }
     .nav-item.active svg { fill: var(--primary); }
-    .fab-btn { width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 24px; position: fixed; bottom: 20px; right: 20px; box-shadow: 0 4px 12px rgba(0,176,116,0.35); }
+    .fab-btn { width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 24px; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 12px rgba(0,176,116,0.35); cursor: pointer; }
+    
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 16px; }
     .modal-overlay.open { display: flex; }
-    .modal-card { background: #ffffff; width: 100%; max-width: 480px; border-radius: 20px; padding: 20px; max-height: 90vh; overflow-y: auto; }
+    .modal-card { background: #ffffff; width: 100%; max-width: 480px; border-radius: 20px; padding: 20px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .modal-title { font-size: 16px; font-weight: bold; }
+    .modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: #777; }
     .form-group { margin-bottom: 14px; }
-    .form-input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; }
-    .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: bold; }
-    .chip { background: #f0f0f0; border: 1px solid #ddd; padding: 6px 10px; border-radius: 8px; font-size: 13px; cursor: pointer; }
+    .form-label { font-size: 13px; font-weight: bold; color: #555; margin-bottom: 6px; display: block; }
+    .form-input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; background: #fafafa; }
+    .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; }
+    .chip-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .chip { background: #f0f0f0; border: 1px solid #ddd; padding: 6px 10px; border-radius: 8px; font-size: 13px; cursor: pointer; user-select: none; }
     .chip.selected { background: #e1f5fe; border-color: var(--primary); color: var(--primary-dark); font-weight: bold; }
-    .content-card { background: var(--card-bg); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-    .upload-box { border: 2px dashed #ccc; border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; color: var(--text-sub); }
   </style>
 </head>
 <body>
+
   <header><div class="header-title" id="headerTitleText">全部皮友</div></header>
 
+  <!-- 1. 全部皮友 -->
   <div id="page-friends" class="page-tab active">
     <div class="sticky-friends-header">
       <div class="tab-switch">
@@ -65,109 +114,440 @@
         <button class="tab-btn" onclick="switchFriendSubTab('mushroom', this)">打菇戰友</button>
         <button class="tab-btn" onclick="switchFriendSubTab('postcard', this)">明信片友</button>
       </div>
-      <div class="filter-bar"><input type="text" id="friendSearchInput" class="search-input" placeholder="🔍 搜尋皮友名稱..." oninput="renderFriendsList()"></div>
+      <div class="filter-bar">
+        <input type="text" id="friendSearchInput" class="search-input" placeholder="🔍 搜尋皮友名稱..." oninput="renderFriendsList()">
+      </div>
     </div>
-    <div id="friendsListContainer"></div>
+    <div id="friendsListContainer" style="margin-top: 10px;"></div>
   </div>
 
-  <div id="page-mushroom" class="page-tab"><div id="mushroomListContainer"></div></div>
-  <div id="page-postcard" class="page-tab"><div id="postcardListContainer"></div></div>
+  <!-- 2. 蘑菇筆記 -->
+  <div id="page-mushroom" class="page-tab">
+    <div id="mushroomListContainer"></div>
+  </div>
+
+  <!-- 3. 明信片筆記 -->
+  <div id="page-postcard" class="page-tab">
+    <div id="postcardListContainer"></div>
+  </div>
+
+  <!-- 4. 課長筆記 -->
   <div id="page-stats" class="page-tab">
-    <div class="sticky-friends-header"><div class="content-card"><div class="summary-row"><div class="summary-card"><div>蘑菇券</div><div id="ticketStockVal" style="font-weight:bold; color:#ff9800;">0 張</div></div><div class="summary-card"><div>花費</div><div id="totalSpentVal" style="font-weight:bold; color:#f44336;">NT$ 0</div></div></div></div></div>
+    <div class="sticky-stats-header" style="position:sticky; top:55px; background:var(--bg-color); z-index:150; padding-top:8px;">
+      <div class="summary-row">
+        <div class="summary-card">
+          <div class="summary-title">蘑菇券</div>
+          <div class="summary-value" style="color:#ff9800;" id="ticketStockVal">0 張</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-title">花費</div>
+          <div class="summary-value" style="color:#f44336;" id="totalSpentVal">NT$ 0</div>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:14px; color:var(--text-sub); margin-bottom:12px;">依道具分類花費紀錄</div>
     <div id="statsListContainer"></div>
   </div>
+
+  <!-- 5. 本月任務 -->
   <div id="page-guide" class="page-tab">
-    <div class="content-card" style="display:flex; justify-content:space-between; align-items:center; padding:12px;">
-      <button onclick="shiftMonth(-1)" style="border:none; background:none; color:#888;">◀</button>
-      <div onclick="openMonthPickerModal()" style="font-weight:bold; color:var(--primary-dark);"><span id="currentMonthLabel">2026年 8月</span> ▾</div>
-      <button onclick="shiftMonth(1)" style="border:none; background:none; color:#888;">▶</button>
+    <div class="content-card" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px;">
+      <button onclick="shiftMonth(-1)" style="background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; padding:4px 8px; color:#888;">◀</button>
+      <div onclick="openMonthPickerModal()" style="font-weight:bold; font-size:15px; cursor:pointer; color:var(--primary-dark); display:flex; align-items:center; gap:4px;">
+        <span id="currentMonthLabel">2026年 8月</span> ▾
+      </div>
+      <button onclick="shiftMonth(1)" style="background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; padding:4px 8px; color:#888;">▶</button>
     </div>
-    <div id="guideContent"></div>
+
+    <div class="content-card">
+      <div class="card-header"><h3>本月任務攻略長圖</h3></div>
+      <div id="box_guideMain" class="upload-box" onclick="triggerFileInput('file_guideMain')">📷 點擊上傳圖片</div>
+      <input type="file" id="file_guideMain" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'img_guideMain', 'guide_preview', 'box_guideMain')">
+      <img id="guide_preview" class="ref-img-preview" alt="預覽" onclick="openImageModal(this.src)">
+    </div>
+
+    <div class="content-card">
+      <div class="card-header"><h3>本月主題飾品皮克敏</h3><span id="progressText_g1" style="font-size:12px; font-weight:bold; color:var(--primary-dark);">0 / 8 (0%)</span></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar_g1"></div></div>
+      <div id="box_g1" class="upload-box" onclick="triggerFileInput('file_g1')">📷 點擊上傳圖片</div>
+      <input type="file" id="file_g1" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'img_g1', 'preview_g1', 'box_g1')">
+      <img id="preview_g1" class="ref-img-preview" onclick="openImageModal(this.src)">
+      <div class="dex-grid" id="dexGroup1"></div>
+    </div>
+
+    <div class="content-card">
+      <div class="card-header"><h3>復刻主題飾品皮克敏 (1)</h3><span id="progressText_g2" style="font-size:12px; font-weight:bold; color:var(--primary-dark);">0 / 8 (0%)</span></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar_g2"></div></div>
+      <div id="box_g2" class="upload-box" onclick="triggerFileInput('file_g2')">📷 點擊上傳圖片</div>
+      <input type="file" id="file_g2" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'img_g2', 'preview_g2', 'box_g2')">
+      <img id="preview_g2" class="ref-img-preview" onclick="openImageModal(this.src)">
+      <div class="dex-grid" id="dexGroup2"></div>
+    </div>
+
+    <div class="content-card">
+      <div class="card-header"><h3>復刻主題飾品皮克敏 (2)</h3><span id="progressText_g3" style="font-size:12px; font-weight:bold; color:var(--primary-dark);">0 / 8 (0%)</span></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar_g3"></div></div>
+      <div id="box_g3" class="upload-box" onclick="triggerFileInput('file_g3')">📷 點擊上傳圖片</div>
+      <input type="file" id="file_g3" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'img_g3', 'preview_g3', 'box_g3')">
+      <img id="preview_g3" class="ref-img-preview" onclick="openImageModal(this.src)">
+      <div class="dex-grid" id="dexGroup3"></div>
+    </div>
   </div>
 
+  <!-- 底部導覽列與 FAB 按鈕 -->
   <div class="bottom-nav-container">
     <div class="bottom-nav">
-      <button class="nav-item active" onclick="switchTab('friends', '全部皮友', this)"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></button>
-      <button class="nav-item" onclick="switchTab('mushroom', '蘑菇筆記', this)"><svg viewBox="0 0 179.2 179.2"><path d="M104.13,92.88c-4.81-.83-9.65-1.45-14.53-1.45-4.89,0-9.72.62-14.53,1.45-3.67,18.8-7.81,37.6-12.41,56.39-3.5,12.01,8.39,22.41,26.57,22.41h.77c18.17,0,30.07-10.4,26.57-22.41-4.61-18.8-8.75-37.6-12.42-56.39Z"/><path d="M89.6,7.52C46.54,7.52,11.64,40.13,11.64,73.96s34.9,13.76,77.96,13.76,77.96,20.08,77.96-13.76S132.65,7.52,89.6,7.52ZM41.13,75.91c-5.27,0-9.55-3.76-9.55-8.41s4.27-8.41,9.55-8.41,9.55,3.76,9.55,8.41-4.27,8.41-9.55,8.41ZM70.7,47.64c-6.2,0-11.23-4.43-11.23-9.89s5.03-9.89,11.23-9.89,11.23,4.43,11.23,9.89-5.03,9.89-11.23,9.89ZM93.52,69.29c-4.5,0-8.14-3.21-8.14-7.17s3.65-7.17,8.14-7.17,8.14,3.21,8.14,7.17-3.65,7.17-8.14,7.17ZM112.52,47.49c-4.7,0-8.51-3.36-8.51-7.5s3.81-7.5,8.51-7.5,8.52,3.36,8.52,7.5-3.81,7.5-8.52,7.5ZM135.36,77.21c-5.27,0-9.55-3.76-9.55-8.41s4.27-8.41,9.55-8.41,9.55,3.76,9.55,8.41-4.27,8.41-9.55,8.41Z"/></svg></button>
-      <button class="nav-item" onclick="switchTab('postcard', '明信片筆記', this)"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></button>
-      <button class="nav-item" onclick="switchTab('stats', '課長筆記', this)"><svg viewBox="0 0 179.2 179.2"><circle cx="89.6" cy="89.6" r="76.69" fill="#cccccc"/><path stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="12.56" fill="none" d="M114.43,67.97c-8.14-21.7-44.85-19.12-45.13,3.48-.12,10.11,11.73,14.76,21.64,16.33,36.11,5.7,26.13,39.66,0,38.37-19.83-.98-25.56-14.39-26.17-17.59"/><line stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="12.56" x1="91.36" y1="36.73" x2="91.36" y2="53.02"/><line stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="12.56" x1="91.36" y1="126.18" x2="91.36" y2="142.47"/></svg></button>
-      <button class="nav-item" onclick="switchTab('guide', '本月任務', this)"><svg viewBox="0 0 179.2 179.2"><path d="M79.09,56.92c-21.01-14.65-43.64-19.19-67.48-16.16v104.36c26.5-3.06,67.48,18.83,67.48,18.83,0,0,0-107.03,0-107.03Z"/><path d="M100.11,163.94s40.98-21.89,67.48-18.83V40.75c-23.84-3.03-46.46,1.51-67.48,16.16v107.03Z"/><rect x="82.05" y="56.91" width="15.09" height="107.14"/></svg></button>
+      <button class="nav-item active" title="全部皮友" onclick="switchTab('friends', '全部皮友', this)">
+        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+      </button>
+      <button class="nav-item" title="蘑菇筆記" onclick="switchTab('mushroom', '蘑菇筆記', this)">
+        <svg viewBox="0 0 179.2 179.2"><path d="M104.13,92.88c-4.81-.83-9.65-1.45-14.53-1.45-4.89,0-9.72.62-14.53,1.45-3.67,18.8-7.81,37.6-12.41,56.39-3.5,12.01,8.39,22.41,26.57,22.41h.77c18.17,0,30.07-10.4,26.57-22.41-4.61-18.8-8.75-37.6-12.42-56.39Z"/><path d="M89.6,7.52C46.54,7.52,11.64,40.13,11.64,73.96s34.9,13.76,77.96,13.76,77.96,20.08,77.96-13.76S132.65,7.52,89.6,7.52ZM41.13,75.91c-5.27,0-9.55-3.76-9.55-8.41s4.27-8.41,9.55-8.41,9.55,3.76,9.55,8.41-4.27,8.41-9.55,8.41ZM70.7,47.64c-6.2,0-11.23-4.43-11.23-9.89s5.03-9.89,11.23-9.89,11.23,4.43,11.23,9.89-5.03,9.89-11.23,9.89ZM93.52,69.29c-4.5,0-8.14-3.21-8.14-7.17s3.65-7.17,8.14-7.17,8.14,3.21,8.14,7.17-3.65,7.17-8.14,7.17ZM112.52,47.49c-4.7,0-8.51-3.36-8.51-7.5s3.81-7.5,8.51-7.5,8.52,3.36,8.52,7.5-3.81,7.5-8.52,7.5ZM135.36,77.21c-5.27,0-9.55-3.76-9.55-8.41s4.27-8.41,9.55-8.41,9.55,3.76,9.55,8.41-4.27,8.41-9.55,8.41Z"/></svg>
+      </button>
+      <button class="nav-item" title="明信片筆記" onclick="switchTab('postcard', '明信片筆記', this)">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      </button>
+      <button class="nav-item" title="課長筆記" onclick="switchTab('stats', '課長筆記', this)">
+        <svg viewBox="0 0 179.2 179.2"><circle cx="89.6" cy="89.6" r="76.69" fill="#cccccc"/><path stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="12.56" fill="none" d="M114.43,67.97c-8.14-21.7-44.85-19.12-45.13,3.48-.12,10.11,11.73,14.76,21.64,16.33,36.11,5.7,26.13,39.66,0,38.37-19.83-.98-25.56-14.39-26.17-17.59"/><line stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="12.56" x1="91.36" y1="36.73" x2="91.36" y2="53.02"/><line stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="12.56" x1="91.36" y1="126.18" x2="91.36" y2="142.47"/></svg>
+      </button>
+      <button class="nav-item" title="本月任務" onclick="switchTab('guide', '本月任務', this)">
+        <svg viewBox="0 0 179.2 179.2"><path d="M79.09,56.92c-21.01-14.65-43.64-19.19-67.48-16.16v104.36c26.5-3.06,67.48,18.83,67.48,18.83,0,0,0-107.03,0-107.03Z"/><path d="M100.11,163.94s40.98-21.89,67.48-18.83V40.75c-23.84-3.03-46.46,1.51-67.48,16.16v107.03Z"/><rect x="82.05" y="56.91" width="15.09" height="107.14"/></svg>
+      </button>
     </div>
     <button class="fab-btn" id="fabButton" onclick="handleFabClick()">＋</button>
   </div>
 
-  <div class="modal-overlay" id="globalModal"><div class="modal-card"><div class="modal-header"><div class="modal-title" id="modalTitle">新增紀錄</div><button class="modal-close" onclick="closeGlobalModal()">✕</button></div><div id="modalBodyContent"></div></div></div>
-  
+  <div class="modal-overlay" id="globalModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">新增紀錄</div>
+        <button class="modal-close" onclick="closeGlobalModal()">✕</button>
+      </div>
+      <div id="modalBodyContent"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="imageModal" onclick="this.classList.remove('open')">
+    <div style="max-width:90%; max-height:90%;"><img id="modalZoomImg" style="width:100%; height:auto; border-radius:10px;"></div>
+  </div>
+
   <script>
-    let appData = JSON.parse(localStorage.getItem("pikmin_app_data") || '{"friends":[], "stats":[], "tickets":0, "dex":{}, "images":{}}');
     let currentActiveTab = 'friends', friendSubTab = 'all', currentYear = 2026, currentMonth = 8;
-    
+    let appData = JSON.parse(localStorage.getItem("pikmin_app_data") || JSON.stringify({ friends: [], stats: [], tickets: 0, dex: {}, images: {} }));
+
     function saveData() { localStorage.setItem("pikmin_app_data", JSON.stringify(appData)); renderAll(); }
-    function toggleBox(id) { document.getElementById(id).classList.toggle("open"); }
-    function switchTab(t, title, btn) { currentActiveTab = t; document.getElementById("headerTitleText").innerText = title; document.querySelectorAll('.page-tab').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active')); document.getElementById('page-'+t).classList.add('active'); btn.classList.add('active'); document.getElementById("fabButton").style.display = (t==='guide')?'none':'flex'; renderAll(); }
-    function switchFriendSubTab(s, btn) { friendSubTab = s; btn.parentElement.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderFriendsList(); }
-    
-    function renderAll() { renderFriendsList(); renderMushroomList(); renderPostcardList(); renderStatsList(); renderGuide(); }
+    function closeGlobalModal() { 
+      document.getElementById("globalModal").classList.remove("open"); 
+      let viewport = document.querySelector('meta[name="viewport"]');
+      viewport.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0";
+    }
+
+    function switchTab(tabId, titleText, btnElem) {
+      currentActiveTab = tabId;
+      document.getElementById("headerTitleText").innerText = titleText;
+      document.querySelectorAll('.page-tab').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      document.getElementById(`page-${tabId}`).classList.add('active');
+      btnElem.classList.add('active');
+      document.getElementById("fabButton").style.display = (tabId === 'guide') ? 'none' : 'flex';
+      renderAll();
+    }
+
+    function switchFriendSubTab(sub, btnElem) {
+      friendSubTab = sub;
+      btnElem.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btnElem.classList.add('active');
+      renderFriendsList();
+    }
+
+    function getMonthKey() { return `${currentYear}-${String(currentMonth).padStart(2, '0')}`; }
+    function updateMonthLabel() { document.getElementById("currentMonthLabel").innerText = `${currentYear}年 ${currentMonth}月`; }
+    function shiftMonth(dir) { currentMonth += dir; if (currentMonth > 12) { currentMonth = 1; currentYear++; } else if (currentMonth < 1) { currentMonth = 12; currentYear--; } updateMonthLabel(); renderDex(); renderImages(); }
+    function selectMonthDirect(y, m) { currentYear = y; currentMonth = m; updateMonthLabel(); renderDex(); renderImages(); closeGlobalModal(); }
+
+    function openMonthPickerModal() {
+      document.getElementById("modalTitle").innerText = "選擇年份與月份";
+      let content = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;"><button onclick="changePickerYear(-1)" style="padding:6px 12px; background:#eee; border:none; border-radius:8px; cursor:pointer; color:#666; font-weight:bold;">◀</button><span style="font-size:16px; font-weight:bold; color:#333;" id="pickerYearText">${currentYear}年</span><button onclick="changePickerYear(1)" style="padding:6px 12px; background:#eee; border:none; border-radius:8px; cursor:pointer; color:#666; font-weight:bold;">▶</button></div><div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;" id="pickerMonthsGrid">`;
+      for(let m = 1; m <= 12; m++) {
+        let isSel = (currentYear === 2026 && currentMonth === m) ? 'background:var(--primary); color:white; font-weight:bold;' : 'background:#f9f9f9; color:#666;';
+        content += `<button onclick="selectMonthDirect(${currentYear}, ${m})" style="padding:14px; border:1px solid #ddd; border-radius:10px; cursor:pointer; font-size:14px; ${isSel}">${m}月</button>`;
+      }
+      content += `</div>`;
+      document.getElementById("modalBodyContent").innerHTML = content;
+      document.getElementById("globalModal").classList.add("open");
+    }
+
+    let pickerTempYear = 2026;
+    function changePickerYear(dir) {
+      pickerTempYear = (pickerTempYear || currentYear) + dir;
+      document.getElementById("pickerYearText").innerText = `${pickerTempYear}年`;
+      let grid = document.getElementById("pickerMonthsGrid"), html = "";
+      for(let m = 1; m <= 12; m++) {
+        html += `<button onclick="selectMonthDirect(${pickerTempYear}, ${m})" style="padding:14px; border:1px solid #ddd; border-radius:10px; cursor:pointer; font-size:14px; background:#f9f9f9; color:#666;">${m}月</button>`;
+      }
+      grid.innerHTML = html;
+    }
+
+    function handleFabClick() {
+      if (currentActiveTab === 'friends') openAddFriendModal();
+      else if (currentActiveTab === 'mushroom') openMushroomRecordModalForFriend("");
+      else if (currentActiveTab === 'postcard') openPostcardModalFor("");
+      else if (currentActiveTab === 'stats') openStatModal();
+    }
+
+    function renderAll() {
+      renderFriendsList(); renderMushroomList(); renderPostcardList(); renderStatsList(); renderDex(); renderImages();
+    }
+
+    function getRankBadge(idx) {
+      let cls = idx === 0 ? "rank-1" : idx === 1 ? "rank-2" : idx === 2 ? "rank-3" : "rank-normal";
+      return `<div class="rank-badge ${cls}">${idx + 1}</div>`;
+    }
+
     function renderFriendsList() {
       const container = document.getElementById("friendsListContainer"); container.innerHTML = "";
-      let list = appData.friends.filter(f => (friendSubTab==='mushroom'?f.isMushroom:friendSubTab==='postcard'?f.isPostcard:true)).sort((a,b)=>(b.mushrooms.length+b.postcards.length)-(a.mushrooms.length+a.postcards.length));
-      list.forEach((f, i) => {
-        let last = [...f.mushrooms.map(m=>m.date), ...f.postcards.map(p=>p.date)].sort().pop() || "無";
+      let list = appData.friends.filter(f => {
+        let match = f.name.toLowerCase().includes(document.getElementById("friendSearchInput").value.toLowerCase());
+        if (friendSubTab === 'mushroom') return match && f.isMushroom;
+        if (friendSubTab === 'postcard') return match && f.isPostcard;
+        return match;
+      }).sort((a,b) => (b.mushrooms.length + b.postcards.length) - (a.mushrooms.length + a.postcards.length));
+
+      list.forEach((f, idx) => {
+        let allDates = [...f.mushrooms.map(m => m.date), ...f.postcards.map(p => p.date)].sort();
+        let lastDate = allDates.length > 0 ? allDates[allDates.length - 1] : "無";
         let card = document.createElement("div"); card.className = "friend-card";
-        card.innerHTML = `<div class="friend-card-top"><div class="friend-info-left"><div class="rank-badge ${i<3?['rank-1','rank-2','rank-3'][i]:'rank-normal'}">${i+1}</div><div><div class="friend-name-row">${f.name}</div><div class="friend-sub-info">上次互動：${last}</div></div></div><div class="friend-stats-right"><div class="stat-main-num">${f.mushrooms.length+f.postcards.length} 次</div><div class="stat-sub-num">🍄 ${f.mushrooms.length} / ✉️ ${f.postcards.length}</div></div></div><div class="card-action-row"><div class="record-btn-group"><button class="record-btn" onclick="openMushroomRecordModalForFriend('${f.name}')">記錄揪菇</button><button class="record-btn record-btn-postcard" onclick="openPostcardModalFor('${f.name}')">收明信片</button></div></div>`;
+        card.innerHTML = `
+          <div class="friend-card-top">
+            <div class="friend-info-left">${getRankBadge(idx)}<div><div class="friend-name-row">${f.name}</div><div class="friend-sub-info">上次互動日期：${lastDate}</div></div></div>
+            <div class="friend-stats-right"><div class="stat-main-num">${f.mushrooms.length + f.postcards.length} 次</div><div class="stat-sub-num">🍄 ${f.mushrooms.length} / ✉️ ${f.postcards.length}</div></div>
+          </div>
+          <div class="card-action-row"><div class="record-btn-group"><button class="record-btn" onclick="openMushroomRecordModalForFriend('${f.name}')">記錄揪菇</button><button class="record-btn record-btn-postcard" onclick="openPostcardModalFor('${f.name}')">收明信片</button></div></div>
+        `;
         container.appendChild(card);
       });
     }
 
     function renderMushroomList() {
       const container = document.getElementById("mushroomListContainer"); container.innerHTML = "";
-      appData.friends.filter(f=>f.isMushroom).sort((a,b)=>b.mushrooms.length-a.mushrooms.length).forEach((f, i) => {
-        let stats = {}; f.mushrooms.forEach(m=>stats[m.type]=(stats[m.type]||0)+1);
-        let summary = Object.keys(stats).map(t=>`${t} x${stats[t]}`).join('、');
+      appData.friends.filter(f => f.isMushroom).sort((a,b)=>b.mushrooms.length-a.mushrooms.length).forEach((f, idx) => {
+        let lastDate = f.mushrooms.length > 0 ? f.mushrooms[f.mushrooms.length-1].date : "無";
+        let typeCounts = {}; f.mushrooms.forEach(m => typeCounts[m.type] = (typeCounts[m.type] || 0) + 1);
+        let summary = Object.keys(typeCounts).map(t => `${t} x${typeCounts[t]}`).join('、');
         let card = document.createElement("div"); card.className = "friend-card";
-        card.innerHTML = `<div class="friend-card-top"><div class="friend-info-left"><div class="rank-badge ${i<3?['rank-1','rank-2','rank-3'][i]:'rank-normal'}">${i+1}</div><div><div class="friend-name-row">${f.name}</div></div></div><div class="stat-main-num">${f.mushrooms.length} 次</div></div><button class="history-toggle-btn" onclick="toggleBox('m_${f.id}')">揪菇記錄 ▾</button><div class="history-content-box" id="m_${f.id}"><div style="font-size:12px; color:var(--text-sub);">${summary||'尚無紀錄'}</div></div><div class="card-action-row"><button class="record-btn" onclick="openMushroomRecordModalForFriend('${f.name}')">記錄</button></div>`;
+        card.innerHTML = `
+          <div class="friend-card-top">
+            <div class="friend-info-left">${getRankBadge(idx)}<div><div class="friend-name-row">${f.name}</div><div class="friend-sub-info">上次揪菇：${lastDate}</div></div></div>
+            <div class="stat-main-num">${f.mushrooms.length} 次</div>
+          </div>
+          <button class="history-toggle-btn" onclick="toggleBox('mush_hist_${f.id}')">揪菇記錄 ▾</button>
+          <div class="history-content-box" id="mush_hist_${f.id}"><div style="font-size:12px; color:var(--text-sub);">${summary || '尚無紀錄'}</div></div>
+          <div class="card-action-row"><button class="record-btn" onclick="openMushroomRecordModalForFriend('${f.name}')">記錄</button></div>
+        `;
         container.appendChild(card);
       });
     }
 
     function renderPostcardList() {
       const container = document.getElementById("postcardListContainer"); container.innerHTML = "";
-      appData.friends.filter(f=>f.isPostcard).forEach((f, i) => {
+      appData.friends.filter(f => f.isPostcard).sort((a,b)=>b.postcards.length-a.postcards.length).forEach((f, idx) => {
+        let received = f.postcards.filter(p => p.status.includes("收")).length;
+        let returned = f.postcards.filter(p => p.status.includes("回")).length;
         let card = document.createElement("div"); card.className = "friend-card";
-        card.innerHTML = `<div class="friend-card-top"><div class="friend-info-left"><div class="rank-badge ${i<3?['rank-1','rank-2','rank-3'][i]:'rank-normal'}">${i+1}</div><div><div class="friend-name-row">${f.name}</div></div></div><div class="friend-stats-right">收到 ${f.postcards.filter(p=>p.status.includes("收")).length} / 回寄 ${f.postcards.filter(p=>p.status.includes("回")).length}</div></div><div class="card-action-row"><button class="record-btn record-btn-postcard" onclick="openPostcardModalFor('${f.name}')">記錄</button></div>`;
+        card.innerHTML = `
+          <div class="friend-card-top">
+            <div class="friend-info-left">${getRankBadge(idx)}<div><div class="friend-name-row">${f.name}</div></div></div>
+            <div class="stat-sub-num">收到 ${received} / 回寄 ${returned}</div>
+          </div>
+          <div class="card-action-row"><button class="record-btn record-btn-postcard" onclick="openPostcardModalFor('${f.name}')">記錄</button></div>
+        `;
         container.appendChild(card);
       });
     }
 
     function renderStatsList() {
-      document.getElementById("ticketStockVal").innerText = appData.tickets+" 張";
-      document.getElementById("totalSpentVal").innerText = "NT$ "+appData.stats.reduce((s,i)=>s+(i.price||0), 0);
+      document.getElementById("ticketStockVal").innerText = `${appData.tickets} 張`;
+      document.getElementById("totalSpentVal").innerText = `NT$ ${appData.stats.reduce((s,i) => s + (i.price||0), 0)}`;
       const container = document.getElementById("statsListContainer"); container.innerHTML = "";
       ['hot','expand','coin','event','other'].forEach(key => {
         let items = appData.stats.filter(s => s.category === key);
-        let total = items.reduce((s,i)=>s+(i.price||0), 0);
-        container.innerHTML += `<div class="content-card"><div class="card-header"><h3>${key.toUpperCase()}</h3><span>NT$ ${total}</span></div>${items.map((it,i)=>`<div class="history-item-row"><span>${it.date} | ${it.name}</span><div><span style="font-weight:bold; color:#e65100;">NT$ ${it.price}</span><button onclick="editStat(${i})" style="margin-left:10px; border:none; background:none; color:var(--primary);">修改</button><button onclick="delStat(${i})" style="margin-left:10px; border:none; background:none; color:#f44336;">刪除</button></div></div>`).join('')}</div>`;
+        let total = items.reduce((s,i) => s + (i.price||0), 0);
+        container.innerHTML += `
+          <div class="content-card"><div class="card-header"><h3>${key.toUpperCase()}</h3><span>NT$ ${total}</span></div>
+          ${items.length === 0 ? '<div style="font-size:12px; color:#888;">尚無紀錄</div>' : items.map((it, i) => `
+            <div class="history-item-row"><span>${it.date} | ${it.name}</span><div><span style="font-weight:bold; color:#e65100;">NT$ ${it.price}</span><button onclick="openEditStat(${i})" style="border:none; background:none; color:var(--primary); font-size:11px; margin-left:10px; cursor:pointer;">修改</button><button onclick="delStat(${i})" style="border:none; background:none; color:#f44336; font-size:11px; margin-left:10px; cursor:pointer;">刪除</button></div></div>
+          `).join('')}</div>
+        `;
       });
     }
 
-    function openMushroomRecordModalForFriend(name) {
-      document.getElementById("modalTitle").innerText = "新增揪菇記錄";
-      document.getElementById("modalBodyContent").innerHTML = `<div class="form-group"><input type="text" id="m_name" class="form-input" value="${name}" ${name?'readonly':''}></div><div class="form-group"><div class="chip-group"><div class="chip selected" onclick="selectChip(this,'m_type')">一般活動菇</div><div class="chip" onclick="selectChip(this,'m_type')">巨大活動菇</div></div><input type="hidden" id="m_type" value="一般活動菇"></div><button class="btn-submit" onclick="submitMush()">確認</button>`;
-      document.getElementById("globalModal").classList.add("open");
+    // 8色圖鑑
+    const pikmin8Colors = [{ name: "紅皮", icon: "❤️" }, { name: "黃皮", icon: "💛" }, { name: "藍皮", icon: "💙" }, { name: "紫皮", icon: "💜" }, { name: "白皮", icon: "🤍" }, { name: "岩皮", icon: "🖤" }, { name: "粉皮", icon: "🩷" }, { name: "冰皮", icon: "🩵" }];
+    function renderDexGroup(groupId, prefix) {
+      const container = document.getElementById(groupId); if(!container) return;
+      container.innerHTML = ""; let collected = 0, mKey = getMonthKey();
+      pikmin8Colors.forEach((p, idx) => {
+        let key = `${mKey}_${prefix}_${idx}`, isCol = appData.dex[key] || false;
+        if(isCol) collected++;
+        let div = document.createElement("div"); div.className = `pikmin-card ${isCol ? 'collected' : ''}`;
+        div.innerHTML = `<div class="pikmin-icon">${p.icon}</div><div class="pikmin-name">${p.name}</div>`;
+        div.onclick = () => { appData.dex[key] = !appData.dex[key]; saveData(); };
+        container.appendChild(div);
+      });
+      document.getElementById(`progressText_${prefix}`).innerText = `${collected} / 8 (${Math.round((collected/8)*100)}%)`;
+      document.getElementById(`progressBar_${prefix}`).style.width = `${Math.round((collected/8)*100)}%`;
+    }
+    function renderDex() { renderDexGroup("dexGroup1", "g1"); renderDexGroup("dexGroup2", "g2"); renderDexGroup("dexGroup3", "g3"); }
+    function renderImages() {
+      let mKey = getMonthKey();
+      ['img_guideMain', 'img_g1', 'img_g2', 'img_g3'].forEach(key => {
+        let fullKey = `${mKey}_${key}`, previewId = key === 'img_guideMain' ? 'guide_preview' : `preview_${key.replace('img_', '')}`, boxId = key === 'img_guideMain' ? 'box_guideMain' : `box_${key.replace('img_', '')}`;
+        let img = document.getElementById(previewId), box = document.getElementById(boxId);
+        if(img && box) {
+          if(appData.images[fullKey]) { img.src = appData.images[fullKey]; img.style.display = "block"; box.style.display = "none"; }
+          else { img.style.display = "none"; box.style.display = "block"; }
+        }
+      });
     }
 
-    function submitMush() {
-      let name = document.getElementById("m_name").value.trim();
-      let f = appData.friends.find(x=>x.name===name) || {id:Date.now(), name:name, isMushroom:true, isPostcard:false, mushrooms:[], postcards:[]};
-      if(!appData.friends.find(x=>x.name===name)) appData.friends.push(f);
-      f.mushrooms.push({date: new Date().toLocaleDateString('zh-TW').slice(5), type: document.getElementById("m_type").value});
+    function triggerFileInput(id) { document.getElementById(id).click(); }
+    function handleImageUpload(e, key, previewId, boxId) {
+      let file = e.target.files[0]; if(!file) return;
+      let reader = new FileReader();
+      reader.onload = ev => { appData.images[`${getMonthKey()}_${key}`] = ev.target.result; saveData(); };
+      reader.readAsDataURL(file);
+    }
+    function openImageModal(src) { document.getElementById("modalZoomImg").src = src; document.getElementById("imageModal").classList.add("open"); }
+    function toggleBox(id) { document.getElementById(id).classList.toggle("open"); }
+
+    // 新增皮友
+    function openAddFriendModal() {
+      document.getElementById("modalTitle").innerText = "新增皮友";
+      document.getElementById("modalBodyContent").innerHTML = `
+        <div class="form-group"><label class="form-label">皮友名稱</label><input type="text" id="in_name" class="form-input" placeholder="輸入名稱"></div>
+        <div class="form-group"><label class="form-label">皮友類型</label><label><input type="checkbox" id="in_m" checked> 打菇戰友</label> <label style="margin-left:12px;"><input type="checkbox" id="in_p" checked> 明信片友</label></div>
+        <button class="btn-submit" onclick="submitNewFriend()">確認</button>
+      `;
+      document.getElementById("globalModal").classList.add("open");
+    }
+    function submitNewFriend() {
+      let name = document.getElementById("in_name").value.trim();
+      if(!name) { alert("請輸入名稱"); return; }
+      appData.friends.push({ id: Date.now(), name: name, isMushroom: document.getElementById("in_m").checked, isPostcard: document.getElementById("in_p").checked, mushrooms: [], postcards: [] });
       saveData(); closeGlobalModal();
     }
 
-    function selectChip(el, target) { el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); document.getElementById(target).value = el.innerText; }
-    function handleFabClick() { if(currentActiveTab==='friends') openAddFriendModal(); else if(currentActiveTab==='mushroom') openMushroomRecordModalForFriend(""); else if(currentActiveTab==='postcard') openPostcardModalFor(""); else if(currentActiveTab==='stats') openStatModal(); }
-    
-    // 初始化
+    // 新增揪菇紀錄
+    function openMushroomRecordModalForFriend(name) {
+      document.getElementById("modalTitle").innerText = "新增揪菇記錄";
+      let nameInput = name ? `<input type="text" id="m_name" class="form-input" value="${name}" readonly style="background:#eee;">` : `<input type="text" id="m_name" class="form-input" placeholder="輸入皮友名字">`;
+      document.getElementById("modalBodyContent").innerHTML = `
+        <div class="form-group"><label class="form-label">皮友名字</label>${nameInput}</div>
+        <div class="form-group"><label class="form-label">蘑菇類型</label>
+          <div class="chip-group"><div class="chip selected" onclick="selectChip(this, 'm_type')">一般活動菇</div><div class="chip" onclick="selectChip(this, 'm_type')">巨大活動菇</div></div>
+          <input type="hidden" id="m_type" value="一般活動菇">
+          <details style="margin-top:8px;"><summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">一般菇</summary>
+            <div class="chip-group" style="margin-top:6px;"><div class="chip" onclick="selectChip(this, 'm_type')">紅蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">黃蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">藍蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">白蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">紫蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">粉紅蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">灰蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">冰藍蘑菇</div></div>
+          </details>
+          <details style="margin-top:6px;"><summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">元素菇</summary>
+            <div class="chip-group" style="margin-top:6px;"><div class="chip" onclick="selectChip(this, 'm_type')">火蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">水蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">電蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">毒蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">水晶蘑菇</div></div>
+          </details>
+        </div>
+        <div class="form-group"><label style="font-size:13px; font-weight:bold;"><input type="checkbox" id="m_ticket"> 有使用蘑菇券</label></div>
+        <button class="btn-submit" onclick="submitMush()">確認</button>
+      `;
+      document.getElementById("globalModal").classList.add("open");
+      if(!name) setupAutocomplete(document.getElementById("m_name"), appData.friends);
+    }
+    function submitMush() {
+      let name = document.getElementById("m_name").value.trim(); if(!name) { alert("請輸入名稱"); return; }
+      let f = appData.friends.find(x => x.name === name);
+      if(!f) { f = { id: Date.now(), name: name, isMushroom: true, isPostcard: false, mushrooms: [], postcards: [] }; appData.friends.push(f); }
+      f.mushrooms.push({ date: `${String(new Date().getMonth()+1).padStart(2,'0')}/${String(new Date().getDate()).padStart(2,'0')}`, type: document.getElementById("m_type").value });
+      if(document.getElementById("m_ticket").checked) appData.tickets = Math.max(0, appData.tickets - 1);
+      saveData(); closeGlobalModal();
+    }
+
+    // 新增明信片紀錄
+    function openPostcardModalFor(name) {
+      document.getElementById("modalTitle").innerText = "新增明信片紀錄";
+      let nameInput = name ? `<input type="text" id="pc_name" class="form-input" value="${name}" readonly style="background:#eee;">` : `<input type="text" id="pc_name" class="form-input" placeholder="輸入皮友名字">`;
+      document.getElementById("modalBodyContent").innerHTML = `
+        <div class="form-group"><label class="form-label">皮友名字</label>${nameInput}</div>
+        <div class="form-group"><label class="form-label">明信片狀態</label>
+          <div class="chip-group"><div class="chip selected" onclick="selectChip(this, 'pc_status')">📥 收到已回寄</div><div class="chip" onclick="selectChip(this, 'pc_status')">📥 收到未回寄</div></div>
+          <input type="hidden" id="pc_status" value="📥 收到已回寄">
+        </div>
+        <button class="btn-submit" onclick="submitPC()">確認</button>
+      `;
+      document.getElementById("globalModal").classList.add("open");
+      if(!name) setupAutocomplete(document.getElementById("pc_name"), appData.friends);
+    }
+    function submitPC() {
+      let name = document.getElementById("pc_name").value.trim(); if(!name) { alert("請輸入名稱"); return; }
+      let f = appData.friends.find(x => x.name === name);
+      if(!f) { f = { id: Date.now(), name: name, isMushroom: false, isPostcard: true, mushrooms: [], postcards: [] }; appData.friends.push(f); }
+      f.postcards.push({ date: `${String(new Date().getMonth()+1).padStart(2,'0')}/${String(new Date().getDate()).padStart(2,'0')}`, status: document.getElementById("pc_status").value });
+      saveData(); closeGlobalModal();
+    }
+
+    // 課長筆記紀錄
+    function openStatModal() {
+      document.getElementById("modalTitle").innerText = "錢錢變成喜歡的樣子";
+      let d = new Date(), dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      document.getElementById("modalBodyContent").innerHTML = `
+        <div class="form-group"><label class="form-label">日期</label><input type="date" id="st_date" class="form-input" value="${dateStr}"></div>
+        <div class="form-group"><label class="form-label">常用禮包</label>
+          <div class="chip-group"><div class="chip selected" onclick="quickStat('hot', '蘑菇高手包', 670, 26)">蘑菇高手包 (NT$ 670 / +26券)</div></div>
+        </div>
+        <details style="margin-bottom:10px;"><summary style="cursor:pointer; font-weight:bold; color:var(--primary-dark);">其他分類與自訂</summary>
+          <div class="form-group" style="margin-top:8px;"><input type="text" id="st_otherName" class="form-input" placeholder="自訂品項名稱"></div>
+          <div class="form-group"><input type="number" id="st_otherPrice" class="form-input" placeholder="金額 (NT$)"></div>
+        </details>
+        <input type="hidden" id="st_cat" value="hot"><input type="hidden" id="st_name" value="蘑菇高手包"><input type="hidden" id="st_price" value="670"><input type="hidden" id="st_tickets" value="26">
+        <button class="btn-submit" onclick="submitStat()">確認</button>
+      `;
+      document.getElementById("globalModal").classList.add("open");
+    }
+    function quickStat(cat, name, price, tickets) { document.getElementById("st_cat").value = cat; document.getElementById("st_name").value = name; document.getElementById("st_price").value = price; document.getElementById("st_tickets").value = tickets; }
+    function submitStat() {
+      let cat = document.getElementById("st_cat").value, name = document.getElementById("st_name").value, price = parseInt(document.getElementById("st_price").value||0), tickets = parseInt(document.getElementById("st_tickets").value||0);
+      let oName = document.getElementById("st_otherName").value.trim(), oPrice = parseInt(document.getElementById("st_otherPrice").value||0);
+      if(oName && oPrice) { cat = "other"; name = oName; price = oPrice; tickets = 0; }
+      let dVal = document.getElementById("st_date").value, mmdd = dVal ? `${dVal.slice(5,7)}/${dVal.slice(8,10)}` : "08/19";
+      appData.tickets += tickets; appData.stats.push({date: mmdd, category: cat, name: name, price: price, tickets: tickets});
+      saveData(); closeGlobalModal();
+    }
+    function editStat(i) {
+      let item = appData.stats[i];
+      document.getElementById("modalTitle").innerText = "修改消費紀錄";
+      document.getElementById("modalBodyContent").innerHTML = `<div class="form-group"><input type="text" id="e_name" class="form-input" value="${item.name}"></div><div class="form-group"><input type="number" id="e_price" class="form-input" value="${item.price}"></div><button class="btn-submit" onclick="submitEditStat(${i})">確認修改</button>`;
+      document.getElementById("globalModal").classList.add("open");
+    }
+    function submitEditStat(i) {
+      let n = document.getElementById("e_name").value.trim(), p = parseInt(document.getElementById("e_price").value||0);
+      if(!n) return; appData.stats[i].name = n; appData.stats[i].price = p; saveData(); closeGlobalModal();
+    }
+    function delStat(i) {
+      if(confirm("確定刪除？")) {
+        let item = appData.stats[i];
+        if(item.tickets) appData.tickets = Math.max(0, appData.tickets - item.tickets);
+        appData.stats.splice(i, 1); saveData();
+      }
+    }
+
+    function selectChip(el, targetId) { el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); document.getElementById(targetId).value = el.innerText; }
+    function setupAutocomplete(input, arr) {
+      input.addEventListener('input', function() {
+        let val = this.value, list = document.createElement('div'); list.className = 'suggestion-list';
+        arr.forEach(f => { if(f.name.toLowerCase().includes(val.toLowerCase())) {
+          let item = document.createElement('div'); item.className = 'suggestion-item'; item.innerText = f.name;
+          item.onclick = () => { input.value = f.name; list.remove(); }; list.appendChild(item);
+        }});
+        let old = document.querySelector('.suggestion-list'); if(old) old.remove();
+        if(val.length > 0) this.parentNode.appendChild(list);
+      });
+    }
+
     renderAll();
   </script>
 </body>
