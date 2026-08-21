@@ -10,7 +10,7 @@
       --card-bg: #ffffff;
       --primary: #00b074;
       --primary-dark: #008f5d;
-      --yellow-btn: #ffc107;
+      --yellow-btn: #fbc02d;
       --text-main: #333333;
       --text-sub: #777777;
       --border-color: #eeeeee;
@@ -51,8 +51,8 @@
     .history-item-row { font-size: 12px; color: #555; background: #fafafa; padding: 6px 10px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
     
     .card-action-row { display: flex; gap: 8px; margin-top: 10px; }
-    .record-btn { flex: 1; border: none; padding: 8px; border-radius: 12px; font-size: 13px; font-weight: bold; cursor: pointer; color: white; text-align: center; }
-    .btn-yellow { background: #fbc02d; color: white; }
+    .record-btn { flex: 1; border: none; padding: 8px; border-radius: 12px; font-size: 13px; font-weight: bold; cursor: pointer; text-align: center; }
+    .btn-yellow { background: var(--yellow-btn); color: white; }
     .btn-green { background: var(--primary); color: white; }
     
     .summary-row { display: flex; gap: 12px; margin-bottom: 16px; }
@@ -94,9 +94,13 @@
     .form-label { font-size: 13px; font-weight: bold; color: #555; margin-bottom: 6px; display: block; }
     .form-input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; background: #fafafa; }
     .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 10px; text-align: center; }
+    
     .chip-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-    .chip { background: #f0f0f0; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; user-select: none; }
+    .chip { background: #f0f0f0; padding: 8px 12px; border-radius: 8px; font-size: 13px; cursor: pointer; user-select: none; border: 1px solid transparent; }
     .chip.selected { background: #e1f5fe; border: 1px solid var(--primary); color: var(--primary-dark); font-weight: bold; }
+    
+    .stat-category-box { background: #fafafa; padding: 10px; border-radius: 10px; border: 1px solid #eee; margin-top: 8px; }
+    .stat-category-title { font-size: 13px; font-weight: bold; color: var(--primary-dark); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 
     .autocomplete-wrapper { position: relative; }
     .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #ddd; border-radius: 0 0 10px 10px; max-height: 150px; overflow-y: auto; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: none; }
@@ -298,9 +302,7 @@
       friends: [], stats: [], tickets: 0, dex: {}, images: {}, groupTitles: {}, iceFlags: {}
     }));
 
-    // 強制將舊資料的票券數歸零
     appData.tickets = 0;
-
     if (!appData.groupTitles) appData.groupTitles = {};
     if (!appData.iceFlags) appData.iceFlags = {};
 
@@ -344,10 +346,7 @@
       if (currentMonth > 12) { currentMonth = 1; currentYear++; }
       else if (currentMonth < 1) { currentMonth = 12; currentYear--; }
       updateMonthLabel();
-      renderDex();
-      renderImages();
-      renderGroupTitles();
-      renderIceButtons();
+      renderDex(); renderImages(); renderGroupTitles(); renderIceButtons();
     }
 
     function selectMonthDirect(y, m) {
@@ -437,7 +436,6 @@
       document.getElementById(clearBtnId).style.display = "none";
     }
 
-    // 1. 全部皮友
     function renderFriendsList() {
       const container = document.getElementById("friendsListContainer");
       container.innerHTML = "";
@@ -489,7 +487,6 @@
       });
     }
 
-    // 2. 蘑菇筆記
     function renderMushroomList() {
       const container = document.getElementById("mushroomListContainer");
       container.innerHTML = "";
@@ -542,7 +539,6 @@
       });
     }
 
-    // 3. 明信片筆記
     function renderPostcardList() {
       const container = document.getElementById("postcardListContainer");
       container.innerHTML = "";
@@ -589,7 +585,6 @@
       });
     }
 
-    // 4. 課長筆記
     function renderStatsList() {
       document.getElementById("ticketStockVal").innerText = `${appData.tickets} 張`;
       let totalNT = appData.stats.reduce((sum, item) => sum + (item.price || 0), 0);
@@ -627,7 +622,6 @@
       });
     }
 
-    // 5. 本月任務與圖鑑 (兩排順序: 紅黃藍白 / 紫岩粉冰)
     const pikminColorsStandard = [
       { name: "紅皮", icon: "❤️" }, { name: "黃皮", icon: "💛" },
       { name: "藍皮", icon: "💙" }, { name: "白皮", icon: "🤍" },
@@ -777,30 +771,36 @@
       closeGlobalModal();
     }
 
-    // 完整的蘑菇選項 HTML 片段（供新增皮友與新增揪菇記錄共用）
     function getMushroomOptionsHtml() {
       return `
         <div class="chip-group">
           <div class="chip selected" onclick="selectChip(this, 'm_type')">一般活動菇</div>
           <div class="chip" onclick="selectChip(this, 'm_type')">巨大活動菇</div>
         </div>
-        <details style="margin-top:8px;"><summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">一般菇</summary>
-          <div class="chip-group" style="margin-top:6px;">
+        <div class="stat-category-box">
+          <div class="stat-category-title" onclick="toggleCategoryBox('m_gen_box')">一般菇 ▾</div>
+          <div id="m_gen_box" style="display:none;" class="chip-group">
             <div class="chip" onclick="selectChip(this, 'm_type')">紅蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">黃蘑菇</div>
             <div class="chip" onclick="selectChip(this, 'm_type')">藍蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">白蘑菇</div>
             <div class="chip" onclick="selectChip(this, 'm_type')">紫蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">粉紅蘑菇</div>
             <div class="chip" onclick="selectChip(this, 'm_type')">灰蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">冰藍蘑菇</div>
           </div>
-        </details>
-        <details style="margin-top:6px;"><summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">元素菇</summary>
-          <div class="chip-group" style="margin-top:6px;">
+        </div>
+        <div class="stat-category-box">
+          <div class="stat-category-title" onclick="toggleCategoryBox('m_ele_box')">元素菇 ▾</div>
+          <div id="m_ele_box" style="display:none;" class="chip-group">
             <div class="chip" onclick="selectChip(this, 'm_type')">火蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">水蘑菇</div>
             <div class="chip" onclick="selectChip(this, 'm_type')">電蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">毒蘑菇</div>
             <div class="chip" onclick="selectChip(this, 'm_type')">水晶蘑菇</div>
           </div>
-        </details>
+        </div>
         <input type="hidden" id="m_type" value="一般活動菇">
       `;
+    }
+
+    function toggleCategoryBox(boxId) {
+      let el = document.getElementById(boxId);
+      if(el) el.style.display = (el.style.display === 'none') ? 'flex' : 'none';
     }
 
     function openAddFriendModal() {
@@ -961,9 +961,10 @@
           <div class="chip-group">
             <div class="chip selected" onclick="quickStat('hot', '蘑菇高手包', 670, 26)">蘑菇高手包 (NT$ 670 / +26券)</div>
           </div>
-          <details style="margin-top:10px; background:#fafafa; padding:8px; border-radius:10px; border:1px solid #eee;">
-            <summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">容量擴充類</summary>
-            <div class="chip-group" style="margin-top:6px;">
+          
+          <div class="stat-category-box">
+            <div class="stat-category-title" onclick="toggleCategoryBox('stat_expand_box')">容量擴充類 ▾</div>
+            <div id="stat_expand_box" style="display:none;" class="chip-group">
               <div class="chip" onclick="quickStat('expand', '精華攜帶空間特殊包', 330, 0)">精華攜帶空間特殊包 (NT$330)</div>
               <div class="chip" onclick="quickStat('expand', '花瓣攜帶空間特殊包', 330, 0)">花瓣攜帶空間特殊包 (NT$330)</div>
               <div class="chip" onclick="quickStat('expand', '花苗攜帶空間特殊包', 330, 0)">花苗攜帶空間特殊包 (NT$330)</div>
@@ -972,10 +973,11 @@
               <div class="chip" onclick="quickStat('expand', '明信片攜帶空間特殊包', 670, 0)">明信片攜帶空間特殊包 (NT$670)</div>
               <div class="chip" onclick="quickStat('expand', '盆栽欄位特殊包', 670, 0)">盆栽欄位特殊包 (NT$670)</div>
             </div>
-          </details>
-          <details style="margin-top:8px; background:#fafafa; padding:8px; border-radius:10px; border:1px solid #eee;">
-            <summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">金幣禮包類</summary>
-            <div class="chip-group" style="margin-top:6px;">
+          </div>
+
+          <div class="stat-category-box">
+            <div class="stat-category-title" onclick="toggleCategoryBox('stat_coin_box')">金幣禮包類 ▾</div>
+            <div id="stat_coin_box" style="display:none;" class="chip-group">
               <div class="chip" onclick="quickStat('coin', '1,250 枚金幣', 330, 0)">1,250 枚金幣 (NT$330)</div>
               <div class="chip" onclick="quickStat('coin', '1,600 枚金幣', 330, 0)">1,600 枚金幣 (NT$330)</div>
               <div class="chip" onclick="quickStat('coin', '2,600 枚金幣', 670, 0)">2,600 枚金幣 (NT$670)</div>
@@ -983,24 +985,27 @@
               <div class="chip" onclick="quickStat('coin', '15,000 枚金幣', 3290, 0)">15,000 枚金幣 (NT$3,290)</div>
               <div class="chip" onclick="quickStat('coin', '35,000 枚金幣', 7190, 0)">35,000 枚金幣 (NT$7,190)</div>
             </div>
-          </details>
-          <details style="margin-top:8px; background:#fafafa; padding:8px; border-radius:10px; border:1px solid #eee;">
-            <summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">活動 / 票券類</summary>
-            <div class="chip-group" style="margin-top:6px;">
+          </div>
+
+          <div class="stat-category-box">
+            <div class="stat-category-title" onclick="toggleCategoryBox('stat_event_box')">活動 / 票券類 ▾</div>
+            <div id="stat_event_box" style="display:none;" class="chip-group">
               <div class="chip" onclick="quickStat('event', '活動高級入場券包', 430, 0)">活動高級入場券包 (NT$430)</div>
               <div class="chip" onclick="quickStat('event', '活動完成包', 670, 0)">活動完成包 (NT$670)</div>
               <div class="chip" onclick="quickStat('event', '特殊探測器包', 670, 0)">特殊探測器包 (NT$670)</div>
               <div class="chip" onclick="quickStat('event', '蘑菇戰鬥大聲公特殊包', 670, 0)">蘑菇戰鬥大聲公特殊包 (NT$670)</div>
             </div>
-          </details>
+          </div>
         </div>
-        <details style="background:#fafafa; padding:8px; border-radius:10px; border:1px solid #eee; margin-top:10px;">
-          <summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">其他品項自訂填寫</summary>
-          <div style="margin-top:8px;">
+
+        <div class="stat-category-box">
+          <div class="stat-category-title" onclick="toggleCategoryBox('stat_other_box')">其他品項自訂填寫 ▾</div>
+          <div id="stat_other_box" style="display:none; margin-top:8px;">
             <input type="text" id="st_otherName" class="form-input" placeholder="自訂品項名稱" style="margin-bottom:6px;">
             <input type="number" id="st_otherPrice" class="form-input" placeholder="金額 (NT$)">
           </div>
-        </details>
+        </div>
+
         <input type="hidden" id="st_cat" value="hot">
         <input type="hidden" id="st_name" value="蘑菇高手包">
         <input type="hidden" id="st_price" value="670">
@@ -1053,9 +1058,10 @@
           <div class="chip-group">
             <div class="chip selected" onclick="quickStat('hot', '蘑菇高手包', 670, 26)">蘑菇高手包 (NT$ 670 / +26券)</div>
           </div>
-          <details style="margin-top:10px; background:#fafafa; padding:8px; border-radius:10px; border:1px solid #eee;">
-            <summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">容量擴充類</summary>
-            <div class="chip-group" style="margin-top:6px;">
+          
+          <div class="stat-category-box">
+            <div class="stat-category-title" onclick="toggleCategoryBox('edit_expand_box')">容量擴充類 ▾</div>
+            <div id="edit_expand_box" style="display:none;" class="chip-group">
               <div class="chip" onclick="quickStat('expand', '精華攜帶空間特殊包', 330, 0)">精華攜帶空間特殊包 (NT$330)</div>
               <div class="chip" onclick="quickStat('expand', '花瓣攜帶空間特殊包', 330, 0)">花瓣攜帶空間特殊包 (NT$330)</div>
               <div class="chip" onclick="quickStat('expand', '花苗攜帶空間特殊包', 330, 0)">花苗攜帶空間特殊包 (NT$330)</div>
@@ -1064,10 +1070,11 @@
               <div class="chip" onclick="quickStat('expand', '明信片攜帶空間特殊包', 670, 0)">明信片攜帶空間特殊包 (NT$670)</div>
               <div class="chip" onclick="quickStat('expand', '盆栽欄位特殊包', 670, 0)">盆栽欄位特殊包 (NT$670)</div>
             </div>
-          </details>
-          <details style="margin-top:8px; background:#fafafa; padding:8px; border-radius:10px; border:1px solid #eee;">
-            <summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">金幣禮包類</summary>
-            <div class="chip-group" style="margin-top:6px;">
+          </div>
+
+          <div class="stat-category-box">
+            <div class="stat-category-title" onclick="toggleCategoryBox('edit_coin_box')">金幣禮包類 ▾</div>
+            <div id="edit_coin_box" style="display:none;" class="chip-group">
               <div class="chip" onclick="quickStat('coin', '1,250 枚金幣', 330, 0)">1,250 枚金幣 (NT$330)</div>
               <div class="chip" onclick="quickStat('coin', '1,600 枚金幣', 330, 0)">1,600 枚金幣 (NT$330)</div>
               <div class="chip" onclick="quickStat('coin', '2,600 枚金幣', 670, 0)">2,600 枚金幣 (NT$670)</div>
@@ -1075,16 +1082,17 @@
               <div class="chip" onclick="quickStat('coin', '15,000 枚金幣', 3290, 0)">15,000 枚金幣 (NT$3,290)</div>
               <div class="chip" onclick="quickStat('coin', '35,000 枚金幣', 7190, 0)">35,000 枚金幣 (NT$7,190)</div>
             </div>
-          </details>
-          <details style="margin-top:8px; background:#fafafa; padding:8px; border-radius:10px; border:1px solid #eee;">
-            <summary style="font-size:13px; font-weight:bold; color:var(--primary-dark); cursor:pointer;">活動 / 票券類</summary>
-            <div class="chip-group" style="margin-top:6px;">
+          </div>
+
+          <div class="stat-category-box">
+            <div class="stat-category-title" onclick="toggleCategoryBox('edit_event_box')">活動 / 票券類 ▾</div>
+            <div id="edit_event_box" style="display:none;" class="chip-group">
               <div class="chip" onclick="quickStat('event', '活動高級入場券包', 430, 0)">活動高級入場券包 (NT$430)</div>
               <div class="chip" onclick="quickStat('event', '活動完成包', 670, 0)">活動完成包 (NT$670)</div>
               <div class="chip" onclick="quickStat('event', '特殊探測器包', 670, 0)">特殊探測器包 (NT$670)</div>
               <div class="chip" onclick="quickStat('event', '蘑菇戰鬥大聲公特殊包', 670, 0)">蘑菇戰鬥大聲公特殊包 (NT$670)</div>
             </div>
-          </details>
+          </div>
         </div>
         <div class="form-group"><label class="form-label">目前品項名稱</label><input type="text" id="edit_st_name" class="form-input" value="${item.name}"></div>
         <div class="form-group"><label class="form-label">金額 (NT$)</label><input type="number" id="edit_st_price" class="form-input" value="${item.price}"></div>
@@ -1110,7 +1118,6 @@
         newName = customName;
       }
 
-      // 調整票券差額
       let ticketDiff = newTickets - (oldItem.tickets || 0);
       appData.tickets = Math.max(0, appData.tickets + ticketDiff);
 
