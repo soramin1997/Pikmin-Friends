@@ -17,7 +17,8 @@
       --radius: 16px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg-color); color: var(--text-main); padding-top: 65px; padding-bottom: 110px; max-width: 600px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+    html { background-color: var(--bg-color); }
+    body { background-color: var(--bg-color); color: var(--text-main); padding-top: 65px; padding-bottom: 110px; max-width: 600px; margin: 0 auto; padding-left: 16px; padding-right: 16px; min-height: 100vh; }
     
     header { position: fixed; top: 0; left: 0; width: 100%; background: var(--bg-color); display: flex; justify-content: center; align-items: center; padding: 14px 16px; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
     .header-title { font-size: 18px; font-weight: bold; color: #000; }
@@ -30,12 +31,16 @@
     .search-input { flex: 1; padding: 10px 35px 10px 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; background: #fff; }
     .clear-search { position: absolute; right: 10px; border: none; background: #ddd; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; color: #555; font-size: 12px; font-weight: bold; display: none; align-items: center; justify-content: center; }
     
-    .tab-switch { display: flex; background: #eee; padding: 4px; border-radius: 10px; margin-bottom: 8px; }
+    .tab-switch { display: flex; background: var(--bg-color); padding: 4px; border-radius: 10px; margin-bottom: 8px; }
     .tab-btn { flex: 1; padding: 8px; border: none; background: none; font-size: 13px; font-weight: bold; color: #777; border-radius: 8px; cursor: pointer; }
     .tab-btn.active { background: #fff; color: var(--primary-dark); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .count-indicator { font-size: 12px; color: var(--text-sub); margin-bottom: 8px; padding-left: 4px; font-weight: bold; }
 
     .card-item { background: var(--card-bg); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .rank-badge.rank-1 { background: linear-gradient(135deg, #ffd873, #f5b400); }
+    .rank-badge.rank-2 { background: linear-gradient(135deg, #e3e3e3, #b0b0b0); }
+    .rank-badge.rank-3 { background: linear-gradient(135deg, #e3a878, #c07840); }
+    .rank-badge.rank-normal { background: #c7c7c7; }
     .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
     .card-info-left { display: flex; align-items: center; gap: 10px; }
     .card-name { font-size: 16px; font-weight: bold; color: #222; }
@@ -82,7 +87,7 @@
     .nav-item { background: none; border: none; cursor: pointer; padding: 6px; }
     .nav-item svg { width: 24px; height: 24px; fill: #ccc; }
     .nav-item.active svg { fill: var(--primary); }
-    .fab-btn { position: fixed; bottom: 20px; right: 20px; width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,176,116,0.35); z-index: 101; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .fab-btn { position: fixed; bottom: 92px; left: 50%; transform: translateX(-50%); width: 58px; height: 58px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 29px; box-shadow: 0 4px 12px rgba(0,176,116,0.35); z-index: 101; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
     .modal-overlay.open { display: flex; }
@@ -106,6 +111,8 @@
     .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #ddd; border-radius: 0 0 10px 10px; max-height: 150px; overflow-y: auto; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: none; }
     .autocomplete-item { padding: 10px 12px; font-size: 14px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
     .autocomplete-item:hover { background: #e1f5fe; color: var(--primary-dark); }
+    .inline-warning { color: #f44336; font-size: 12px; font-weight: bold; margin-bottom: 12px; background: #ffebee; padding: 8px 10px; border-radius: 8px; }
+    .history-item-row.clickable { cursor: pointer; }
   </style>
 </head>
 <body>
@@ -190,7 +197,6 @@
 
     <div id="guide-sub-map" class="guide-sub-page">
       <div class="content-card">
-        <div class="card-header"><h3>任務地圖</h3></div>
         <div id="box_guideMain" class="upload-box" onclick="triggerFileInput('file_guideMain')">📷 點擊上傳圖片</div>
         <input type="file" id="file_guideMain" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'img_guideMain')">
         <div id="map_container" class="map-img-container">
@@ -309,6 +315,19 @@
     function saveData() {
       localStorage.setItem("pikmin_app_data", JSON.stringify(appData));
       renderAll();
+    }
+
+    function showInlineAlert(msg) {
+      let container = document.getElementById("modalBodyContent");
+      if (!container) return;
+      let warn = document.getElementById("inlineWarnBox");
+      if (!warn) {
+        warn = document.createElement("div");
+        warn.id = "inlineWarnBox";
+        warn.className = "inline-warning";
+        container.insertBefore(warn, container.firstChild);
+      }
+      warn.innerText = msg;
     }
 
     function switchTab(tabId, titleText, btnElem) {
@@ -468,7 +487,7 @@
               ${getRankBadge(idx)}
               <div>
                 <div class="card-name">${f.name}</div>
-                <div class="card-sub">上次互動日期：${lastDate}<br>🍄 ${f.mushrooms.length} / ✉️ ${f.postcards.length}</div>
+                <div class="card-sub">上次互動：${lastDate}<br>🍄 ${f.mushrooms.length} / ✉️ ${f.postcards.length}</div>
               </div>
             </div>
             <div style="display:flex; flex-direction:column; align-items:flex-end;">
@@ -507,7 +526,9 @@
 
         let typeCounts = {};
         f.mushrooms.forEach(m => { typeCounts[m.type] = (typeCounts[m.type] || 0) + 1; });
-        let statsSummaryStr = Object.keys(typeCounts).map(t => `${t} x${typeCounts[t]}`).join('、');
+        let summaryHtml = Object.keys(typeCounts).length > 0
+          ? Object.keys(typeCounts).map(t => `${t}（${typeCounts[t]}）`).join('<br>')
+          : '尚無紀錄';
 
         let card = document.createElement("div");
         card.className = "card-item";
@@ -517,7 +538,7 @@
               ${getRankBadge(idx)}
               <div>
                 <div class="card-name">${f.name}</div>
-                <div class="card-sub">上次揪菇：${lastDate}</div>
+                <div class="card-sub">上次揪菇：${lastDate}<br><span onclick="toggleBox('mush_hist_${f.id}')" style="color:var(--text-sub); font-weight:bold; cursor:pointer;">歷史紀錄 ▾</span></div>
               </div>
             </div>
             <div style="display:flex; flex-direction:column; align-items:flex-end;">
@@ -527,12 +548,11 @@
               <div class="stat-main" style="margin-top:4px;">${f.mushrooms.length} 次</div>
             </div>
           </div>
-          <button class="history-toggle-btn" onclick="toggleBox('mush_hist_${f.id}')">揪菇記錄 ▾</button>
           <div class="history-content-box" id="mush_hist_${f.id}">
-            <div style="font-size:12px; font-weight:bold; color:var(--text-sub); line-height:1.5;">${statsSummaryStr || '尚無紀錄'}</div>
+            <div style="font-size:12px; font-weight:bold; color:var(--text-sub); line-height:1.6;">${summaryHtml}</div>
           </div>
           <div class="card-action-row">
-            <button class="record-btn btn-yellow" onclick="openMushroomRecordModalForFriend('${f.name}')">紀錄</button>
+            <button class="record-btn btn-green" onclick="openMushroomRecordModalForFriend('${f.name}')">紀錄</button>
           </div>
         `;
         container.appendChild(card);
@@ -544,7 +564,7 @@
       container.innerHTML = "";
       const keyword = document.getElementById("postcardSearchInput").value.trim().toLowerCase();
 
-      let list = appData.friends.filter(f => f.name.toLowerCase().includes(keyword));
+      let list = appData.friends.filter(f => f.postcards.length > 0 && f.name.toLowerCase().includes(keyword));
       sortFriends(list);
       document.getElementById("postcardCountIndicator").innerText = `共 ${list.length} 位明信片友`;
 
@@ -764,37 +784,44 @@
 
     function submitEditGroupTitle(groupKey) {
       let val = document.getElementById("edit_group_title").value.trim();
-      if(!val) { alert("請輸入名稱"); return; }
+      if(!val) { showInlineAlert("請輸入名稱"); return; }
       let mKey = getMonthKey();
       appData.groupTitles[`${mKey}_title_${groupKey}`] = val;
       saveData();
       closeGlobalModal();
     }
 
+    function buildColorSizeChips(colors, targetId) {
+      let html = "";
+      colors.forEach(c => {
+        html += `<div class="chip" onclick="selectChip(this, '${targetId}')">（大）${c}</div><div class="chip" onclick="selectChip(this, '${targetId}')">（小）${c}</div>`;
+      });
+      return html;
+    }
+
     function getMushroomOptionsHtml() {
+      const generalColors = ["紅蘑菇", "黃蘑菇", "藍蘑菇", "白蘑菇", "紫蘑菇", "粉紅蘑菇", "灰蘑菇", "冰藍蘑菇"];
+      const elementColors = ["火蘑菇", "水蘑菇", "電蘑菇", "毒蘑菇", "水晶蘑菇"];
       return `
+        <div class="form-label" style="margin-top:4px;">活動菇類型</div>
         <div class="chip-group">
-          <div class="chip selected" onclick="selectChip(this, 'm_type')">一般活動菇</div>
-          <div class="chip" onclick="selectChip(this, 'm_type')">巨大活動菇</div>
+          <div class="chip" onclick="selectChip(this, 'm_activity_type')">一般活動菇</div>
+          <div class="chip" onclick="selectChip(this, 'm_activity_type')">巨大活動菇</div>
         </div>
         <div class="stat-category-box">
           <div class="stat-category-title" onclick="toggleCategoryBox('m_gen_box')">一般菇 ▾</div>
           <div id="m_gen_box" style="display:none;" class="chip-group">
-            <div class="chip" onclick="selectChip(this, 'm_type')">紅蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">黃蘑菇</div>
-            <div class="chip" onclick="selectChip(this, 'm_type')">藍蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">白蘑菇</div>
-            <div class="chip" onclick="selectChip(this, 'm_type')">紫蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">粉紅蘑菇</div>
-            <div class="chip" onclick="selectChip(this, 'm_type')">灰蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">冰藍蘑菇</div>
+            ${buildColorSizeChips(generalColors, 'm_type')}
           </div>
         </div>
         <div class="stat-category-box">
           <div class="stat-category-title" onclick="toggleCategoryBox('m_ele_box')">元素菇 ▾</div>
           <div id="m_ele_box" style="display:none;" class="chip-group">
-            <div class="chip" onclick="selectChip(this, 'm_type')">火蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">水蘑菇</div>
-            <div class="chip" onclick="selectChip(this, 'm_type')">電蘑菇</div><div class="chip" onclick="selectChip(this, 'm_type')">毒蘑菇</div>
-            <div class="chip" onclick="selectChip(this, 'm_type')">水晶蘑菇</div>
+            ${buildColorSizeChips(elementColors, 'm_type')}
           </div>
         </div>
-        <input type="hidden" id="m_type" value="一般活動菇">
+        <input type="hidden" id="m_activity_type" value="">
+        <input type="hidden" id="m_type" value="">
       `;
     }
 
@@ -808,13 +835,13 @@
       document.getElementById("modalBodyContent").innerHTML = `
         <div class="form-group autocomplete-wrapper">
           <label class="form-label">皮友名稱</label>
-          <input type="text" id="in_name" class="form-input" placeholder="輸入名稱" oninput="handleAutocomplete(this.value)">
+          <input type="text" id="in_name" class="form-input" placeholder="輸入名稱" oninput="handleAutocomplete(this.value)" onfocus="handleAutocomplete(this.value)">
           <div id="autocompleteList" class="autocomplete-list"></div>
         </div>
         <div class="form-group">
           <label class="form-label">皮友身分</label>
-          <label><input type="checkbox" id="in_m" checked onchange="toggleAddRecordSections()"> 揪菇皮友</label>
-          <label style="margin-left:12px;"><input type="checkbox" id="in_p" checked onchange="toggleAddRecordSections()"> 明信片友</label>
+          <label style="font-size:13px;"><input type="checkbox" id="in_m" checked onchange="toggleAddRecordSections()"> 揪菇皮友</label>
+          <label style="font-size:13px; margin-left:12px;"><input type="checkbox" id="in_p" checked onchange="toggleAddRecordSections()"> 明信片友</label>
         </div>
         <div id="mRecordSection" style="background:#fafafa; padding:10px; border-radius:10px; margin-top:10px;">
           <div class="form-label" style="font-weight:bold; color:var(--primary-dark);">初次揪菇記錄</div>
@@ -824,11 +851,11 @@
         <div id="pRecordSection" style="background:#fafafa; padding:10px; border-radius:10px; margin-top:10px;">
           <div class="form-label" style="font-weight:bold; color:#0288d1;">初次明信片狀態</div>
           <div class="chip-group">
-            <div class="chip selected" onclick="selectChip(this, 'qr_pstatus')">📥 收到已回寄</div>
-            <div class="chip" onclick="selectChip(this, 'qr_pstatus')">📥 收到未回寄</div>
-            <div class="chip" onclick="selectChip(this, 'qr_pstatus')">📤 寄出等待回覆</div>
+            <div class="chip selected" onclick="selectChip(this, 'qr_pstatus')">收到已回</div>
+            <div class="chip" onclick="selectChip(this, 'qr_pstatus')">收到未回</div>
+            <div class="chip" onclick="selectChip(this, 'qr_pstatus')">寄出等回</div>
           </div>
-          <input type="hidden" id="qr_pstatus" value="📥 收到已回寄">
+          <input type="hidden" id="qr_pstatus" value="收到已回">
         </div>
         <button class="btn-submit btn-green" onclick="submitNewFriendAdvanced()">確認新增</button>
       `;
@@ -842,8 +869,8 @@
 
     function submitNewFriendAdvanced() {
       const name = document.getElementById("in_name").value.trim();
-      if(!name) { alert("請輸入名稱"); return; }
-      if(appData.friends.some(f => f.name === name)) { alert("這位皮友已經存在囉！"); return; }
+      if(!name) { showInlineAlert("請輸入名稱"); return; }
+      if(appData.friends.some(f => f.name === name)) { showInlineAlert("這位皮友已經存在囉！"); return; }
 
       let isM = document.getElementById("in_m").checked;
       let isP = document.getElementById("in_p").checked;
@@ -853,7 +880,10 @@
       let dateStr = `${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
 
       if (isM) {
-        newF.mushrooms.push({ date: dateStr, type: document.getElementById("m_type").value, reward: "+90" });
+        let activityType = document.getElementById("m_activity_type").value;
+        let colorType = document.getElementById("m_type").value;
+        if(!activityType && !colorType) { showInlineAlert("請選擇活動菇類型或蘑菇顏色其中一項"); return; }
+        newF.mushrooms.push({ date: dateStr, type: combineMushroomType(activityType, colorType), activityType: activityType, colorType: colorType, reward: "+90" });
         if (document.getElementById("qr_ticket").checked) appData.tickets = Math.max(0, appData.tickets - 1);
       }
       if (isP) {
@@ -876,7 +906,7 @@
           <label style="margin-left:12px;"><input type="checkbox" id="edit_p" ${f.isPostcard ? 'checked' : ''}> 明信片友</label>
         </div>
         <button class="btn-submit btn-green" onclick="submitEditFriend(${f.id})">確認修改</button>
-        <button class="btn-submit" onclick="confirmDeleteFriend(${f.id})" style="background:#f44336; margin-top:8px;">刪除皮友</button>
+        <button class="btn-submit" onclick="confirmDeleteFriend(${f.id}, this)" style="background:#f44336; margin-top:8px;">刪除皮友</button>
       `;
       document.getElementById("globalModal").classList.add("open");
     }
@@ -884,7 +914,7 @@
     function submitEditFriend(id) {
       const f = appData.friends.find(x => x.id === id);
       let newName = document.getElementById("edit_name").value.trim();
-      if(!newName) { alert("請輸入名稱"); return; }
+      if(!newName) { showInlineAlert("請輸入名稱"); return; }
       f.name = newName;
       f.isMushroom = document.getElementById("edit_m").checked;
       f.isPostcard = document.getElementById("edit_p").checked;
@@ -892,11 +922,14 @@
       closeGlobalModal();
     }
 
-    function confirmDeleteFriend(id) {
-      if (confirm("確定要刪除這位皮友嗎？")) {
+    function confirmDeleteFriend(id, btnElem) {
+      if (btnElem && btnElem.dataset.confirming === "1") {
         appData.friends = appData.friends.filter(f => f.id !== id);
         saveData();
         closeGlobalModal();
+      } else if (btnElem) {
+        btnElem.dataset.confirming = "1";
+        btnElem.innerText = "再按一次確認刪除";
       }
     }
 
@@ -926,15 +959,17 @@
       openEditMushroomHistoryModal(friendId);
     }
 
+    const POSTCARD_STATUS_CYCLE = ["收到已回", "收到未回", "寄出等回"];
+
     function openEditPostcardHistoryModal(id) {
       const f = appData.friends.find(x => x.id === id);
       document.getElementById("modalTitle").innerText = `管理明信片記錄 (${f.name})`;
-      let listHtml = f.postcards.length === 0 ? '<div style="color:#888; font-size:13px; margin-bottom:12px;">尚無明信片記錄</div>' : '';
+      let listHtml = f.postcards.length === 0 ? '<div style="color:#888; font-size:13px; margin-bottom:12px;">尚無明信片記錄</div>' : '<div style="font-size:12px; color:var(--text-sub); margin-bottom:8px;">點擊紀錄可切換狀態</div>';
       f.postcards.forEach((p, idx) => {
         listHtml += `
-          <div class="history-item-row">
+          <div class="history-item-row clickable" onclick="cyclePostcardStatus(${f.id}, ${idx})">
             <span>${p.date} | ${p.status}</span>
-            <button onclick="deletePostcardItem(${f.id}, ${idx})" style="background:none; border:none; color:#f44336; cursor:pointer; font-weight:bold; font-size:12px;">刪除</button>
+            <button onclick="event.stopPropagation(); deletePostcardItem(${f.id}, ${idx})" style="background:none; border:none; color:#f44336; cursor:pointer; font-weight:bold; font-size:12px;">刪除</button>
           </div>
         `;
       });
@@ -943,6 +978,16 @@
         <button class="btn-submit btn-green" onclick="openPostcardModalFor('${f.name}')">＋ 新增一筆明信片記錄</button>
       `;
       document.getElementById("globalModal").classList.add("open");
+    }
+
+    function cyclePostcardStatus(friendId, itemIndex) {
+      const f = appData.friends.find(x => x.id === friendId);
+      const current = f.postcards[itemIndex].status;
+      let idx = POSTCARD_STATUS_CYCLE.indexOf(current);
+      idx = (idx === -1) ? 0 : (idx + 1) % POSTCARD_STATUS_CYCLE.length;
+      f.postcards[itemIndex].status = POSTCARD_STATUS_CYCLE[idx];
+      saveData();
+      openEditPostcardHistoryModal(friendId);
     }
 
     function deletePostcardItem(friendId, itemIndex) {
@@ -959,41 +1004,41 @@
           <label class="form-label" style="margin-bottom:8px;">選擇官方品項與方案</label>
           <div style="font-size:13px; font-weight:bold; color:var(--primary-dark); margin:8px 0 4px 0;">熱門常用禮包</div>
           <div class="chip-group">
-            <div class="chip selected" onclick="quickStat('hot', '蘑菇高手包', 670, 26)">蘑菇高手包 (NT$ 670 / +26券)</div>
+            <div class="chip" onclick="quickStat(this, 'hot', '蘑菇高手包', 670, 26)">蘑菇高手包 (NT$ 670 / +26券)</div>
           </div>
           
           <div class="stat-category-box">
             <div class="stat-category-title" onclick="toggleCategoryBox('stat_expand_box')">容量擴充類 ▾</div>
             <div id="stat_expand_box" style="display:none;" class="chip-group">
-              <div class="chip" onclick="quickStat('expand', '精華攜帶空間特殊包', 330, 0)">精華攜帶空間特殊包 (NT$330)</div>
-              <div class="chip" onclick="quickStat('expand', '花瓣攜帶空間特殊包', 330, 0)">花瓣攜帶空間特殊包 (NT$330)</div>
-              <div class="chip" onclick="quickStat('expand', '花苗攜帶空間特殊包', 330, 0)">花苗攜帶空間特殊包 (NT$330)</div>
-              <div class="chip" onclick="quickStat('expand', '皮克敏收藏特殊包（+200）', 330, 0)">皮克敏收藏特殊包（+200） (NT$330)</div>
-              <div class="chip" onclick="quickStat('expand', '皮克敏收藏特殊包（+500）', 670, 0)">皮克敏收藏特殊包（+500） (NT$670)</div>
-              <div class="chip" onclick="quickStat('expand', '明信片攜帶空間特殊包', 670, 0)">明信片攜帶空間特殊包 (NT$670)</div>
-              <div class="chip" onclick="quickStat('expand', '盆栽欄位特殊包', 670, 0)">盆栽欄位特殊包 (NT$670)</div>
+              <div class="chip" onclick="quickStat(this, 'expand', '精華攜帶空間特殊包', 330, 0)">精華攜帶空間特殊包 (NT$330)</div>
+              <div class="chip" onclick="quickStat(this, 'expand', '花瓣攜帶空間特殊包', 330, 0)">花瓣攜帶空間特殊包 (NT$330)</div>
+              <div class="chip" onclick="quickStat(this, 'expand', '花苗攜帶空間特殊包', 330, 0)">花苗攜帶空間特殊包 (NT$330)</div>
+              <div class="chip" onclick="quickStat(this, 'expand', '皮克敏收藏特殊包（+200）', 330, 0)">皮克敏收藏特殊包（+200） (NT$330)</div>
+              <div class="chip" onclick="quickStat(this, 'expand', '皮克敏收藏特殊包（+500）', 670, 0)">皮克敏收藏特殊包（+500） (NT$670)</div>
+              <div class="chip" onclick="quickStat(this, 'expand', '明信片攜帶空間特殊包', 670, 0)">明信片攜帶空間特殊包 (NT$670)</div>
+              <div class="chip" onclick="quickStat(this, 'expand', '盆栽欄位特殊包', 670, 0)">盆栽欄位特殊包 (NT$670)</div>
             </div>
           </div>
 
           <div class="stat-category-box">
             <div class="stat-category-title" onclick="toggleCategoryBox('stat_coin_box')">金幣禮包類 ▾</div>
             <div id="stat_coin_box" style="display:none;" class="chip-group">
-              <div class="chip" onclick="quickStat('coin', '1,250 枚金幣', 330, 0)">1,250 枚金幣 (NT$330)</div>
-              <div class="chip" onclick="quickStat('coin', '1,600 枚金幣', 330, 0)">1,600 枚金幣 (NT$330)</div>
-              <div class="chip" onclick="quickStat('coin', '2,600 枚金幣', 670, 0)">2,600 枚金幣 (NT$670)</div>
-              <div class="chip" onclick="quickStat('coin', '5,400 枚金幣', 1320, 0)">5,400 枚金幣 (NT$1,320)</div>
-              <div class="chip" onclick="quickStat('coin', '15,000 枚金幣', 3290, 0)">15,000 枚金幣 (NT$3,290)</div>
-              <div class="chip" onclick="quickStat('coin', '35,000 枚金幣', 7190, 0)">35,000 枚金幣 (NT$7,190)</div>
+              <div class="chip" onclick="quickStat(this, 'coin', '1,250 枚金幣', 330, 0)">1,250 枚金幣 (NT$330)</div>
+              <div class="chip" onclick="quickStat(this, 'coin', '1,600 枚金幣', 330, 0)">1,600 枚金幣 (NT$330)</div>
+              <div class="chip" onclick="quickStat(this, 'coin', '2,600 枚金幣', 670, 0)">2,600 枚金幣 (NT$670)</div>
+              <div class="chip" onclick="quickStat(this, 'coin', '5,400 枚金幣', 1320, 0)">5,400 枚金幣 (NT$1,320)</div>
+              <div class="chip" onclick="quickStat(this, 'coin', '15,000 枚金幣', 3290, 0)">15,000 枚金幣 (NT$3,290)</div>
+              <div class="chip" onclick="quickStat(this, 'coin', '35,000 枚金幣', 7190, 0)">35,000 枚金幣 (NT$7,190)</div>
             </div>
           </div>
 
           <div class="stat-category-box">
             <div class="stat-category-title" onclick="toggleCategoryBox('stat_event_box')">活動 / 票券類 ▾</div>
             <div id="stat_event_box" style="display:none;" class="chip-group">
-              <div class="chip" onclick="quickStat('event', '活動高級入場券包', 430, 0)">活動高級入場券包 (NT$430)</div>
-              <div class="chip" onclick="quickStat('event', '活動完成包', 670, 0)">活動完成包 (NT$670)</div>
-              <div class="chip" onclick="quickStat('event', '特殊探測器包', 670, 0)">特殊探測器包 (NT$670)</div>
-              <div class="chip" onclick="quickStat('event', '蘑菇戰鬥大聲公特殊包', 670, 0)">蘑菇戰鬥大聲公特殊包 (NT$670)</div>
+              <div class="chip" onclick="quickStat(this, 'event', '活動高級入場券包', 430, 0)">活動高級入場券包 (NT$430)</div>
+              <div class="chip" onclick="quickStat(this, 'event', '活動完成包', 670, 0)">活動完成包 (NT$670)</div>
+              <div class="chip" onclick="quickStat(this, 'event', '特殊探測器包', 670, 0)">特殊探測器包 (NT$670)</div>
+              <div class="chip" onclick="quickStat(this, 'event', '蘑菇戰鬥大聲公特殊包', 670, 0)">蘑菇戰鬥大聲公特殊包 (NT$670)</div>
             </div>
           </div>
         </div>
@@ -1006,22 +1051,26 @@
           </div>
         </div>
 
-        <input type="hidden" id="st_cat" value="hot">
-        <input type="hidden" id="st_name" value="蘑菇高手包">
-        <input type="hidden" id="st_price" value="670">
-        <input type="hidden" id="st_tickets" value="26">
+        <input type="hidden" id="st_cat" value="">
+        <input type="hidden" id="st_name" value="">
+        <input type="hidden" id="st_price" value="">
+        <input type="hidden" id="st_tickets" value="">
         <button class="btn-submit btn-green" onclick="submitStatRecord()">確認新增</button>
       `;
       document.getElementById("globalModal").classList.add("open");
     }
 
-    function quickStat(cat, name, price, tickets) {
+    function quickStat(elem, cat, name, price, tickets) {
       document.getElementById("st_cat").value = cat;
       document.getElementById("st_name").value = name;
       document.getElementById("st_price").value = price;
       document.getElementById("st_tickets").value = tickets;
-      document.getElementById("st_otherName").value = "";
-      document.getElementById("st_otherPrice").value = "";
+      let otherNameEl = document.getElementById("st_otherName");
+      let otherPriceEl = document.getElementById("st_otherPrice");
+      if (otherNameEl) otherNameEl.value = "";
+      if (otherPriceEl) otherPriceEl.value = "";
+      document.querySelectorAll("#modalBodyContent .chip-group .chip").forEach(c => c.classList.remove("selected"));
+      if (elem) elem.classList.add("selected");
     }
 
     function submitStatRecord() {
@@ -1038,6 +1087,8 @@
         price = otherPrice;
         tickets = 0;
       }
+
+      if (!name || !price) { showInlineAlert("請選擇品項或自行填寫品項名稱與金額"); return; }
 
       let today = new Date();
       let mmdd = `${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
@@ -1056,41 +1107,41 @@
           <label class="form-label" style="margin-bottom:8px;">重新選擇品項與方案</label>
           <div style="font-size:13px; font-weight:bold; color:var(--primary-dark); margin:8px 0 4px 0;">熱門常用禮包</div>
           <div class="chip-group">
-            <div class="chip selected" onclick="quickStat('hot', '蘑菇高手包', 670, 26)">蘑菇高手包 (NT$ 670 / +26券)</div>
+            <div class="chip selected" onclick="quickStat(this, 'hot', '蘑菇高手包', 670, 26)">蘑菇高手包 (NT$ 670 / +26券)</div>
           </div>
           
           <div class="stat-category-box">
             <div class="stat-category-title" onclick="toggleCategoryBox('edit_expand_box')">容量擴充類 ▾</div>
             <div id="edit_expand_box" style="display:none;" class="chip-group">
-              <div class="chip" onclick="quickStat('expand', '精華攜帶空間特殊包', 330, 0)">精華攜帶空間特殊包 (NT$330)</div>
-              <div class="chip" onclick="quickStat('expand', '花瓣攜帶空間特殊包', 330, 0)">花瓣攜帶空間特殊包 (NT$330)</div>
-              <div class="chip" onclick="quickStat('expand', '花苗攜帶空間特殊包', 330, 0)">花苗攜帶空間特殊包 (NT$330)</div>
-              <div class="chip" onclick="quickStat('expand', '皮克敏收藏特殊包（+200）', 330, 0)">皮克敏收藏特殊包（+200） (NT$330)</div>
-              <div class="chip" onclick="quickStat('expand', '皮克敏收藏特殊包（+500）', 670, 0)">皮克敏收藏特殊包（+500） (NT$670)</div>
-              <div class="chip" onclick="quickStat('expand', '明信片攜帶空間特殊包', 670, 0)">明信片攜帶空間特殊包 (NT$670)</div>
-              <div class="chip" onclick="quickStat('expand', '盆栽欄位特殊包', 670, 0)">盆栽欄位特殊包 (NT$670)</div>
+              <div class="chip" onclick="quickStat(this, 'expand', '精華攜帶空間特殊包', 330, 0)">精華攜帶空間特殊包 (NT$330)</div>
+              <div class="chip" onclick="quickStat(this, 'expand', '花瓣攜帶空間特殊包', 330, 0)">花瓣攜帶空間特殊包 (NT$330)</div>
+              <div class="chip" onclick="quickStat(this, 'expand', '花苗攜帶空間特殊包', 330, 0)">花苗攜帶空間特殊包 (NT$330)</div>
+              <div class="chip" onclick="quickStat(this, 'expand', '皮克敏收藏特殊包（+200）', 330, 0)">皮克敏收藏特殊包（+200） (NT$330)</div>
+              <div class="chip" onclick="quickStat(this, 'expand', '皮克敏收藏特殊包（+500）', 670, 0)">皮克敏收藏特殊包（+500） (NT$670)</div>
+              <div class="chip" onclick="quickStat(this, 'expand', '明信片攜帶空間特殊包', 670, 0)">明信片攜帶空間特殊包 (NT$670)</div>
+              <div class="chip" onclick="quickStat(this, 'expand', '盆栽欄位特殊包', 670, 0)">盆栽欄位特殊包 (NT$670)</div>
             </div>
           </div>
 
           <div class="stat-category-box">
             <div class="stat-category-title" onclick="toggleCategoryBox('edit_coin_box')">金幣禮包類 ▾</div>
             <div id="edit_coin_box" style="display:none;" class="chip-group">
-              <div class="chip" onclick="quickStat('coin', '1,250 枚金幣', 330, 0)">1,250 枚金幣 (NT$330)</div>
-              <div class="chip" onclick="quickStat('coin', '1,600 枚金幣', 330, 0)">1,600 枚金幣 (NT$330)</div>
-              <div class="chip" onclick="quickStat('coin', '2,600 枚金幣', 670, 0)">2,600 枚金幣 (NT$670)</div>
-              <div class="chip" onclick="quickStat('coin', '5,400 枚金幣', 1320, 0)">5,400 枚金幣 (NT$1,320)</div>
-              <div class="chip" onclick="quickStat('coin', '15,000 枚金幣', 3290, 0)">15,000 枚金幣 (NT$3,290)</div>
-              <div class="chip" onclick="quickStat('coin', '35,000 枚金幣', 7190, 0)">35,000 枚金幣 (NT$7,190)</div>
+              <div class="chip" onclick="quickStat(this, 'coin', '1,250 枚金幣', 330, 0)">1,250 枚金幣 (NT$330)</div>
+              <div class="chip" onclick="quickStat(this, 'coin', '1,600 枚金幣', 330, 0)">1,600 枚金幣 (NT$330)</div>
+              <div class="chip" onclick="quickStat(this, 'coin', '2,600 枚金幣', 670, 0)">2,600 枚金幣 (NT$670)</div>
+              <div class="chip" onclick="quickStat(this, 'coin', '5,400 枚金幣', 1320, 0)">5,400 枚金幣 (NT$1,320)</div>
+              <div class="chip" onclick="quickStat(this, 'coin', '15,000 枚金幣', 3290, 0)">15,000 枚金幣 (NT$3,290)</div>
+              <div class="chip" onclick="quickStat(this, 'coin', '35,000 枚金幣', 7190, 0)">35,000 枚金幣 (NT$7,190)</div>
             </div>
           </div>
 
           <div class="stat-category-box">
             <div class="stat-category-title" onclick="toggleCategoryBox('edit_event_box')">活動 / 票券類 ▾</div>
             <div id="edit_event_box" style="display:none;" class="chip-group">
-              <div class="chip" onclick="quickStat('event', '活動高級入場券包', 430, 0)">活動高級入場券包 (NT$430)</div>
-              <div class="chip" onclick="quickStat('event', '活動完成包', 670, 0)">活動完成包 (NT$670)</div>
-              <div class="chip" onclick="quickStat('event', '特殊探測器包', 670, 0)">特殊探測器包 (NT$670)</div>
-              <div class="chip" onclick="quickStat('event', '蘑菇戰鬥大聲公特殊包', 670, 0)">蘑菇戰鬥大聲公特殊包 (NT$670)</div>
+              <div class="chip" onclick="quickStat(this, 'event', '活動高級入場券包', 430, 0)">活動高級入場券包 (NT$430)</div>
+              <div class="chip" onclick="quickStat(this, 'event', '活動完成包', 670, 0)">活動完成包 (NT$670)</div>
+              <div class="chip" onclick="quickStat(this, 'event', '特殊探測器包', 670, 0)">特殊探測器包 (NT$670)</div>
+              <div class="chip" onclick="quickStat(this, 'event', '蘑菇戰鬥大聲公特殊包', 670, 0)">蘑菇戰鬥大聲公特殊包 (NT$670)</div>
             </div>
           </div>
         </div>
@@ -1134,15 +1185,13 @@
     }
 
     function deleteStatRecord(index) {
-      if(confirm("確定要刪除這筆消費紀錄嗎？")) {
-        let item = appData.stats[index];
-        if (item.tickets) {
-          appData.tickets = Math.max(0, appData.tickets - item.tickets);
-        }
-        appData.stats.splice(index, 1);
-        saveData();
-        closeGlobalModal();
+      let item = appData.stats[index];
+      if (item.tickets) {
+        appData.tickets = Math.max(0, appData.tickets - item.tickets);
       }
+      appData.stats.splice(index, 1);
+      saveData();
+      closeGlobalModal();
     }
 
     function openMushroomRecordModal() { openMushroomRecordModalForFriend(""); }
@@ -1153,7 +1202,7 @@
         ${isCardClick ? `<input type="hidden" id="m_name" value="${name}">` : `
         <div class="form-group autocomplete-wrapper">
           <label class="form-label">皮友名字</label>
-          <input type="text" id="m_name" class="form-input" placeholder="輸入名稱" oninput="handleAutocomplete(this.value)">
+          <input type="text" id="m_name" class="form-input" placeholder="輸入名稱" oninput="handleAutocomplete(this.value)" onfocus="handleAutocomplete(this.value)">
           <div id="autocompleteList" class="autocomplete-list"></div>
         </div>`}
         <div class="form-group"><label class="form-label">蘑菇類型</label>
@@ -1165,9 +1214,17 @@
       document.getElementById("globalModal").classList.add("open");
     }
 
+    function combineMushroomType(activityType, colorType) {
+      if (activityType && colorType) return `${activityType}｜${colorType}`;
+      return activityType || colorType;
+    }
+
     function submitMushroomRecord() {
       let name = document.getElementById("m_name").value.trim();
-      if(!name) { alert("請輸入名稱"); return; }
+      if(!name) { showInlineAlert("請輸入名稱"); return; }
+      let activityType = document.getElementById("m_activity_type").value;
+      let colorType = document.getElementById("m_type").value;
+      if(!activityType && !colorType) { showInlineAlert("請選擇活動菇類型或蘑菇顏色其中一項"); return; }
       let f = appData.friends.find(x => x.name === name);
       if(!f) {
         f = { id: Date.now(), name: name, isMushroom: true, isPostcard: false, mushrooms: [], postcards: [] };
@@ -1175,7 +1232,7 @@
       }
       let today = new Date();
       let dateStr = `${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
-      f.mushrooms.push({ date: dateStr, type: document.getElementById("m_type").value, reward: "+90" });
+      f.mushrooms.push({ date: dateStr, type: combineMushroomType(activityType, colorType), activityType: activityType, colorType: colorType, reward: "+90" });
       if (document.getElementById("m_ticket").checked) appData.tickets = Math.max(0, appData.tickets - 1);
       saveData();
       closeGlobalModal();
@@ -1189,16 +1246,16 @@
         ${isCardClick ? `<input type="hidden" id="pc_name" value="${name}">` : `
         <div class="form-group autocomplete-wrapper">
           <label class="form-label">皮友名字</label>
-          <input type="text" id="pc_name" class="form-input" placeholder="輸入名稱" oninput="handleAutocomplete(this.value)">
+          <input type="text" id="pc_name" class="form-input" placeholder="輸入名稱" oninput="handleAutocomplete(this.value)" onfocus="handleAutocomplete(this.value)">
           <div id="autocompleteList" class="autocomplete-list"></div>
         </div>`}
         <div class="form-group"><label class="form-label">明信片狀態</label>
           <div class="chip-group">
-            <div class="chip selected" onclick="selectChip(this, 'pc_status')">📥 收到已回寄</div>
-            <div class="chip" onclick="selectChip(this, 'pc_status')">📥 收到未回寄</div>
-            <div class="chip" onclick="selectChip(this, 'pc_status')">📤 寄出等待回覆</div>
+            <div class="chip selected" onclick="selectChip(this, 'pc_status')">收到已回</div>
+            <div class="chip" onclick="selectChip(this, 'pc_status')">收到未回</div>
+            <div class="chip" onclick="selectChip(this, 'pc_status')">寄出等回</div>
           </div>
-          <input type="hidden" id="pc_status" value="📥 收到已回寄">
+          <input type="hidden" id="pc_status" value="收到已回">
         </div>
         <button class="btn-submit btn-green" onclick="submitPostcardRecord()">確認新增</button>
       `;
@@ -1207,7 +1264,7 @@
 
     function submitPostcardRecord() {
       let name = document.getElementById("pc_name").value.trim();
-      if(!name) { alert("請輸入名稱"); return; }
+      if(!name) { showInlineAlert("請輸入名稱"); return; }
       let f = appData.friends.find(x => x.name === name);
       if(!f) {
         f = { id: Date.now(), name: name, isMushroom: false, isPostcard: true, mushrooms: [], postcards: [] };
@@ -1224,10 +1281,9 @@
       let listElem = document.getElementById("autocompleteList");
       if (!listElem) return;
       keyword = keyword.trim().toLowerCase();
-      if (!keyword) { listElem.style.display = "none"; return; }
       let sortedFriends = [...appData.friends];
       sortFriends(sortedFriends);
-      let matched = sortedFriends.filter(f => f.name.toLowerCase().includes(keyword));
+      let matched = keyword ? sortedFriends.filter(f => f.name.toLowerCase().includes(keyword)) : sortedFriends;
       if (matched.length === 0) { listElem.style.display = "none"; return; }
       let html = "";
       matched.forEach(f => {
@@ -1236,6 +1292,14 @@
       listElem.innerHTML = html;
       listElem.style.display = "block";
     }
+
+    document.addEventListener("click", function(e) {
+      let listElem = document.getElementById("autocompleteList");
+      if (!listElem || listElem.style.display === "none") return;
+      if (!e.target.closest(".autocomplete-wrapper")) {
+        listElem.style.display = "none";
+      }
+    });
 
     function selectAutocomplete(name) {
       let inputElem = document.getElementById("m_name") || document.getElementById("pc_name") || document.getElementById("in_name");
