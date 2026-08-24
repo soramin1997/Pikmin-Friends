@@ -18,9 +18,9 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
     html { background-color: var(--bg-color); }
-    body { background-color: var(--bg-color); color: var(--text-main); padding-top: 65px; padding-bottom: 110px; max-width: 600px; margin: 0 auto; padding-left: 16px; padding-right: 16px; min-height: 100vh; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding-top: 65px; padding-bottom: 180px; max-width: 600px; margin: 0 auto; padding-left: 16px; padding-right: 16px; min-height: 100vh; }
     
-    header { position: fixed; top: 0; left: 0; width: 100%; background: var(--bg-color); display: flex; justify-content: center; align-items: center; padding: 14px 16px; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+    header { position: fixed; top: 0; left: 0; width: 100%; background: var(--bg-color); display: flex; justify-content: center; align-items: center; padding: 14px 16px; z-index: 200; }
     .header-title { font-size: 18px; font-weight: bold; color: #000; }
 
     .page-tab { display: none; }
@@ -87,6 +87,7 @@
     .nav-item { background: none; border: none; cursor: pointer; padding: 6px; }
     .nav-item svg { width: 24px; height: 24px; fill: #ccc; }
     .nav-item.active svg { fill: var(--primary); }
+    .nav-item.active svg circle { fill: var(--primary); }
     .fab-btn { position: fixed; bottom: 92px; left: 50%; transform: translateX(-50%); width: 58px; height: 58px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 29px; box-shadow: 0 4px 12px rgba(0,176,116,0.35); z-index: 101; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
@@ -164,7 +165,7 @@
   <div id="page-stats" class="page-tab">
     <div class="sticky-header">
       <div class="summary-row">
-        <div class="summary-card">
+        <div class="summary-card" onclick="openTicketAdjustModal()" style="cursor:pointer;">
           <div class="summary-title">蘑菇券還有</div>
           <div class="summary-value" id="ticketStockVal">0 張</div>
         </div>
@@ -308,7 +309,7 @@
       friends: [], stats: [], tickets: 0, dex: {}, images: {}, groupTitles: {}, iceFlags: {}
     }));
 
-    appData.tickets = 0;
+    if (typeof appData.tickets !== "number") appData.tickets = 0;
     if (!appData.groupTitles) appData.groupTitles = {};
     if (!appData.iceFlags) appData.iceFlags = {};
 
@@ -445,6 +446,30 @@
       });
     }
 
+    function sortByMushroomCount(array) {
+      return array.sort((a, b) => {
+        let diff = b.mushrooms.length - a.mushrooms.length;
+        if (diff !== 0) return diff;
+        let datesA = a.mushrooms.map(m => m.date).sort();
+        let datesB = b.mushrooms.map(m => m.date).sort();
+        let lastA = datesA.length > 0 ? datesA[datesA.length - 1] : "";
+        let lastB = datesB.length > 0 ? datesB[datesB.length - 1] : "";
+        return lastB.localeCompare(lastA);
+      });
+    }
+
+    function sortByPostcardCount(array) {
+      return array.sort((a, b) => {
+        let diff = b.postcards.length - a.postcards.length;
+        if (diff !== 0) return diff;
+        let datesA = a.postcards.map(p => p.date).sort();
+        let datesB = b.postcards.map(p => p.date).sort();
+        let lastA = datesA.length > 0 ? datesA[datesA.length - 1] : "";
+        let lastB = datesB.length > 0 ? datesB[datesB.length - 1] : "";
+        return lastB.localeCompare(lastA);
+      });
+    }
+
     function onSearchInput(inputId, clearBtnId) {
       let val = document.getElementById(inputId).value;
       document.getElementById(clearBtnId).style.display = val ? "flex" : "none";
@@ -512,7 +537,7 @@
       const keyword = document.getElementById("mushroomSearchInput").value.trim().toLowerCase();
 
       let list = appData.friends.filter(f => f.name.toLowerCase().includes(keyword));
-      sortFriends(list);
+      sortByMushroomCount(list);
       document.getElementById("mushroomCountIndicator").innerText = `共 ${list.length} 位揪菇皮友`;
 
       if (list.length === 0) {
@@ -565,7 +590,7 @@
       const keyword = document.getElementById("postcardSearchInput").value.trim().toLowerCase();
 
       let list = appData.friends.filter(f => f.postcards.length > 0 && f.name.toLowerCase().includes(keyword));
-      sortFriends(list);
+      sortByPostcardCount(list);
       document.getElementById("postcardCountIndicator").innerText = `共 ${list.length} 位明信片友`;
 
       if (list.length === 0) {
@@ -805,8 +830,8 @@
       return `
         <div class="form-label" style="margin-top:4px;">活動菇類型</div>
         <div class="chip-group">
-          <div class="chip" onclick="selectChip(this, 'm_activity_type')">一般活動菇</div>
-          <div class="chip" onclick="selectChip(this, 'm_activity_type')">巨大活動菇</div>
+          <div class="chip" onclick="selectMushroomChip(this, 'm_activity_type', 'm_type')">一般活動菇</div>
+          <div class="chip" onclick="selectMushroomChip(this, 'm_activity_type', 'm_type')">巨大活動菇</div>
         </div>
         <div class="stat-category-box">
           <div class="stat-category-title" onclick="toggleCategoryBox('m_gen_box')">一般菇 ▾</div>
@@ -995,6 +1020,48 @@
       f.postcards.splice(itemIndex, 1);
       saveData();
       openEditPostcardHistoryModal(friendId);
+    }
+
+    function updateTicketInputLabel(mode) {
+      let label = document.getElementById("ticket_input_label");
+      if (!label) return;
+      label.innerText = (mode === "增加張數") ? "請輸入要增加的張數" : "請輸入新的總張數";
+    }
+
+    function openTicketAdjustModal() {
+      document.getElementById("modalTitle").innerText = "調整蘑菇券數量";
+      document.getElementById("modalBodyContent").innerHTML = `
+        <div class="form-group">
+          <div class="form-label">目前蘑菇券：${appData.tickets} 張</div>
+          <div class="chip-group">
+            <div class="chip" onclick="selectChip(this, 'ticket_mode'); updateTicketInputLabel(this.innerText)">增加張數</div>
+            <div class="chip" onclick="selectChip(this, 'ticket_mode'); updateTicketInputLabel(this.innerText)">直接修改總張數</div>
+          </div>
+          <input type="hidden" id="ticket_mode" value="">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="ticket_input_label">請輸入張數</label>
+          <input type="number" id="ticket_input_value" class="form-input" placeholder="請輸入數字" min="0">
+        </div>
+        <button class="btn-submit btn-green" onclick="submitTicketAdjust()">確認調整</button>
+      `;
+      document.getElementById("globalModal").classList.add("open");
+    }
+
+    function submitTicketAdjust() {
+      let mode = document.getElementById("ticket_mode").value;
+      let raw = document.getElementById("ticket_input_value").value;
+      if (!mode) { showInlineAlert("請選擇「增加張數」或「直接修改總張數」"); return; }
+      if (raw === "" || isNaN(raw)) { showInlineAlert("請輸入數字"); return; }
+      let n = parseInt(raw, 10);
+      if (n < 0) { showInlineAlert("請輸入 0 以上的數字"); return; }
+      if (mode === "增加張數") {
+        appData.tickets = Math.max(0, appData.tickets + n);
+      } else {
+        appData.tickets = n;
+      }
+      saveData();
+      closeGlobalModal();
     }
 
     function openStatModal() {
