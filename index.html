@@ -816,10 +816,19 @@
       closeGlobalModal();
     }
 
-    function buildColorSizeChips(colors, targetId) {
+    function selectMushroomChip(el, targetId, otherTargetId) {
+      document.querySelectorAll('#m_activity_group .chip, #m_gen_box .chip, #m_ele_box .chip').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById(targetId).value = el.innerText;
+      document.getElementById(otherTargetId).value = "";
+    }
+
+    function buildColorSizeChips(colors, sizes, targetId) {
       let html = "";
       colors.forEach(c => {
-        html += `<div class="chip" onclick="selectChip(this, '${targetId}')">（大）${c}</div><div class="chip" onclick="selectChip(this, '${targetId}')">（小）${c}</div>`;
+        sizes.forEach(sz => {
+          html += `<div class="chip" onclick="selectMushroomChip(this, '${targetId}', 'm_activity_type')">（${sz}）${c}</div>`;
+        });
       });
       return html;
     }
@@ -829,20 +838,20 @@
       const elementColors = ["火蘑菇", "水蘑菇", "電蘑菇", "毒蘑菇", "水晶蘑菇"];
       return `
         <div class="form-label" style="margin-top:4px;">活動菇類型</div>
-        <div class="chip-group">
+        <div class="chip-group" id="m_activity_group">
           <div class="chip" onclick="selectMushroomChip(this, 'm_activity_type', 'm_type')">一般活動菇</div>
           <div class="chip" onclick="selectMushroomChip(this, 'm_activity_type', 'm_type')">巨大活動菇</div>
         </div>
         <div class="stat-category-box">
           <div class="stat-category-title" onclick="toggleCategoryBox('m_gen_box')">一般菇 ▾</div>
           <div id="m_gen_box" style="display:none;" class="chip-group">
-            ${buildColorSizeChips(generalColors, 'm_type')}
+            ${buildColorSizeChips(generalColors, ['小', '一般', '大'], 'm_type')}
           </div>
         </div>
         <div class="stat-category-box">
           <div class="stat-category-title" onclick="toggleCategoryBox('m_ele_box')">元素菇 ▾</div>
           <div id="m_ele_box" style="display:none;" class="chip-group">
-            ${buildColorSizeChips(elementColors, 'm_type')}
+            ${buildColorSizeChips(elementColors, ['大', '一般'], 'm_type')}
           </div>
         </div>
         <input type="hidden" id="m_activity_type" value="">
