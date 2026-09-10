@@ -99,12 +99,13 @@
     .pikmin-icon { font-size: 20px; margin-bottom: 2px; }
     .pikmin-name { font-size: 10px; font-weight: bold; color: #333; }
 
-    .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #ffffff; padding: 8px 16px; border-radius: 30px; display: flex; gap: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); z-index: 100; }
+    .bottom-bar-wrap { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; z-index: 100; }
+    .bottom-nav { background: #ffffff; padding: 8px 16px; border-radius: 30px; display: flex; gap: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
     .nav-item { background: none; border: none; cursor: pointer; padding: 6px; }
     .nav-item svg { width: 24px; height: 24px; fill: #ccc; }
     .nav-item.active svg { fill: var(--primary); }
     .nav-item.active svg circle { fill: var(--primary); }
-    .fab-btn { position: fixed; bottom: 92px; left: 50%; transform: translateX(-50%); width: 58px; height: 58px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 29px; box-shadow: 0 4px 12px rgba(0,176,116,0.35); z-index: 101; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .fab-btn { width: 52px; height: 52px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 26px; box-shadow: 0 4px 12px rgba(0,176,116,0.35); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
     .modal-overlay.open { display: flex; }
@@ -331,24 +332,26 @@
     </div>
   </div>
 
-  <div class="bottom-nav">
-    <button class="nav-item active" title="全部皮友" onclick="switchTab('friends', '全部皮友', this)">
-      <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-    </button>
-    <button class="nav-item" title="蘑菇筆記" onclick="switchTab('mushroom', '蘑菇筆記', this)">
-      <svg viewBox="0 0 179.2 179.2"><g><path d="M104.13,92.88c-4.81-.83-9.65-1.45-14.53-1.45-4.89,0-9.72.62-14.53,1.45-3.67,18.8-7.81,37.6-12.41,56.39-3.5,12.01,8.39,22.41,26.57,22.41h.77c18.17,0,30.07-10.4,26.57-22.41-4.61-18.8-8.75-37.6-12.42-56.39Z"/><path d="M89.6,7.52C46.54,7.52,11.64,40.13,11.64,73.96s34.9,13.76,77.96,13.76,77.96,20.08,77.96-13.76S132.65,7.52,89.6,7.52Z"/></g></svg>
-    </button>
-    <button class="nav-item" title="明信片筆記" onclick="switchTab('postcard', '明信片筆記', this)">
-      <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-    </button>
-    <button class="nav-item" title="課長筆記" onclick="switchTab('stats', '課長筆記', this)">
-      <svg viewBox="0 0 179.2 179.2"><g><circle cx="89.6" cy="89.6" r="76.69" fill="#ccc"/><path stroke="#fff" stroke-width="12.56" fill="none" d="M114.43,67.97c-8.14-21.7-44.85-19.12-45.13,3.48-.12,10.11,11.73,14.76,21.64,16.33,36.11,5.7,26.13,39.66,0,38.37-19.83-.98-25.56-14.39-26.17-17.59"/></g></svg>
-    </button>
-    <button class="nav-item" title="本月任務" onclick="switchTab('guide', '本月任務', this)">
-      <svg viewBox="0 0 179.2 179.2"><g><path d="M97.29,48.58h-20.65l-.53-.49c-15.54-14.17-35.66-20.39-59.8-18.51-1.02.08-1.93-.69-2.01-1.72s.69-1.93,1.72-2.01c24.93-1.94,45.81,4.44,62.07,18.98h19.21c1.03,0,1.87.84,1.87,1.87s-.84,1.87-1.87,1.87Z"/><path d="M85.44,47.56c-.57,0-1.13-.26-1.5-.75-13.85-18.5-35.69-28.91-58.44-27.85-1.05.04-1.9-.75-1.95-1.78-.05-1.03.75-1.9,1.78-1.95,23.98-1.11,47.02,9.85,61.61,29.35.62.83.45,2-.38,2.61-.34.25-.73.37-1.12.37Z"/><path d="M79.09,56.92c-21.01-14.65-43.64-19.19-67.48-16.16v104.36c26.5-3.06,67.48,18.83,67.48,18.83,0,0,0-107.03,0-107.03Z"/><path d="M100.11,163.94s40.98-21.89,67.48-18.83V40.75c-23.84-3.03-46.46,1.51-67.48,16.16v107.03Z"/><path d="M102.56,48.58h-20.65c-1.03,0-1.87-.84-1.87-1.87s.84-1.87,1.87-1.87h19.21c16.25-14.54,37.13-20.93,62.07-18.98,1.03.08,1.8.98,1.72,2.01-.08,1.03-.98,1.79-2.01,1.72-24.15-1.89-44.26,4.34-59.8,18.51l-.53.49Z"/><path d="M93.76,47.56c-.39,0-.78-.12-1.12-.37-.83-.62-.99-1.79-.38-2.61,14.59-19.49,37.61-30.46,61.61-29.35,1.03.05,1.83.92,1.78,1.95-.05,1.03-.91,1.82-1.95,1.78-22.75-1.06-44.6,9.36-58.44,27.85-.37.49-.93.75-1.5.75Z"/><rect x="82.05" y="56.91" width="15.09" height="107.14"/></g></svg>
-    </button>
+  <div class="bottom-bar-wrap">
+    <div class="bottom-nav">
+      <button class="nav-item active" title="全部皮友" onclick="switchTab('friends', '全部皮友', this)">
+        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+      </button>
+      <button class="nav-item" title="蘑菇筆記" onclick="switchTab('mushroom', '蘑菇筆記', this)">
+        <svg viewBox="0 0 179.2 179.2"><g><path d="M104.13,92.88c-4.81-.83-9.65-1.45-14.53-1.45-4.89,0-9.72.62-14.53,1.45-3.67,18.8-7.81,37.6-12.41,56.39-3.5,12.01,8.39,22.41,26.57,22.41h.77c18.17,0,30.07-10.4,26.57-22.41-4.61-18.8-8.75-37.6-12.42-56.39Z"/><path d="M89.6,7.52C46.54,7.52,11.64,40.13,11.64,73.96s34.9,13.76,77.96,13.76,77.96,20.08,77.96-13.76S132.65,7.52,89.6,7.52Z"/></g></svg>
+      </button>
+      <button class="nav-item" title="明信片筆記" onclick="switchTab('postcard', '明信片筆記', this)">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      </button>
+      <button class="nav-item" title="課長筆記" onclick="switchTab('stats', '課長筆記', this)">
+        <svg viewBox="0 0 179.2 179.2"><g><circle cx="89.6" cy="89.6" r="76.69" fill="#ccc"/><path stroke="#fff" stroke-width="12.56" fill="none" d="M114.43,67.97c-8.14-21.7-44.85-19.12-45.13,3.48-.12,10.11,11.73,14.76,21.64,16.33,36.11,5.7,26.13,39.66,0,38.37-19.83-.98-25.56-14.39-26.17-17.59"/></g></svg>
+      </button>
+      <button class="nav-item" title="本月任務" onclick="switchTab('guide', '本月任務', this)">
+        <svg viewBox="0 0 179.2 179.2"><g><path d="M97.29,48.58h-20.65l-.53-.49c-15.54-14.17-35.66-20.39-59.8-18.51-1.02.08-1.93-.69-2.01-1.72s.69-1.93,1.72-2.01c24.93-1.94,45.81,4.44,62.07,18.98h19.21c1.03,0,1.87.84,1.87,1.87s-.84,1.87-1.87,1.87Z"/><path d="M85.44,47.56c-.57,0-1.13-.26-1.5-.75-13.85-18.5-35.69-28.91-58.44-27.85-1.05.04-1.9-.75-1.95-1.78-.05-1.03.75-1.9,1.78-1.95,23.98-1.11,47.02,9.85,61.61,29.35.62.83.45,2-.38,2.61-.34.25-.73.37-1.12.37Z"/><path d="M79.09,56.92c-21.01-14.65-43.64-19.19-67.48-16.16v104.36c26.5-3.06,67.48,18.83,67.48,18.83,0,0,0-107.03,0-107.03Z"/><path d="M100.11,163.94s40.98-21.89,67.48-18.83V40.75c-23.84-3.03-46.46,1.51-67.48,16.16v107.03Z"/><path d="M102.56,48.58h-20.65c-1.03,0-1.87-.84-1.87-1.87s.84-1.87,1.87-1.87h19.21c16.25-14.54,37.13-20.93,62.07-18.98,1.03.08,1.8.98,1.72,2.01-.08,1.03-.98,1.79-2.01,1.72-24.15-1.89-44.26,4.34-59.8,18.51l-.53.49Z"/><path d="M93.76,47.56c-.39,0-.78-.12-1.12-.37-.83-.62-.99-1.79-.38-2.61,14.59-19.49,37.61-30.46,61.61-29.35,1.03.05,1.83.92,1.78,1.95-.05,1.03-.91,1.82-1.95,1.78-22.75-1.06-44.6,9.36-58.44,27.85-.37.49-.93.75-1.5.75Z"/><rect x="82.05" y="56.91" width="15.09" height="107.14"/></g></svg>
+      </button>
+    </div>
+    <button class="fab-btn" id="fabButton" onclick="handleFabClick()">＋</button>
   </div>
-  <button class="fab-btn" id="fabButton" onclick="handleFabClick()">＋</button>
 
 
   <div class="modal-overlay" id="globalModal">
@@ -689,7 +692,7 @@
           </div>
           <div class="card-action-row">
             <button class="record-btn btn-yellow" onclick="openMushroomRecordModalForFriend('${f.name}')">揪菇紀錄</button>
-            <button class="record-btn btn-green" onclick="openPostcardModalFor('${f.name}')">紀錄</button>
+            <button class="record-btn btn-green" onclick="openPostcardModalFor('${f.name}')">明信片紀錄</button>
           </div>
         `;
         container.appendChild(card);
@@ -794,12 +797,12 @@
         return;
       }
 
-      const batchNames = ['第一種子皮友','第二種子皮友','第三種子皮友','第四種子皮友','第五種子皮友','第六種子皮友','第七種子皮友','第八種子皮友','第九種子皮友','第十種子皮友'];
+      const batchNames = ['第一種子','第二種子','第三種子','第四種子','第五種子','第六種子','第七種子','第八種子','第九種子','第十種子'];
       let html = '';
       const batchSize = 10;
       for (let i = 0; i < candidates.length; i += batchSize) {
         const batchIdx = Math.floor(i / batchSize);
-        const batchLabel = batchNames[batchIdx] || `第${batchIdx + 1}種子皮友`;
+        const batchLabel = batchNames[batchIdx] || `第${batchIdx + 1}種子`;
         const batch = candidates.slice(i, i + batchSize);
         const batchIds = batch.map(f => f.id).join(',');
         html += `
@@ -921,10 +924,9 @@
           <div class="history-content-box" id="mush_hist_${f.id}">
             <div style="font-size:12px; font-weight:bold; color:var(--text-sub); line-height:1.6;">${summaryHtml}</div>
           </div>
-          ${idx < 3 ? `
           <div class="card-action-row">
             <button class="record-btn btn-green" onclick="event.stopPropagation(); openMushroomRecordModalForFriend('${f.name}')">紀錄</button>
-          </div>` : ''}
+          </div>
         `;
         container.appendChild(card);
       });
