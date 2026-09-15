@@ -124,6 +124,7 @@
     .invite-badge { font-size: 18px; cursor: pointer; opacity: 0.3; filter: grayscale(100%); transition: opacity .15s, filter .15s; line-height: 1; }
     .invite-badge.active { opacity: 1; filter: none; }
     .invite-batch-bar { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(--primary-dark); color: #fff; padding: 10px 20px; border-radius: 24px; display: none; align-items: center; gap: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 110; font-size: 14px; font-weight: bold; white-space: nowrap; }
+    .invite-suggest-footer { position: sticky; bottom: -20px; margin: 16px -20px -20px -20px; padding: 14px 20px; background: #fff; border-top: 1px solid var(--border-color); border-radius: 0 0 20px 20px; display: none; align-items: center; justify-content: space-between; font-size: 13px; font-weight: bold; color: var(--text-main); }
     .invite-batch-bar button { background: #fff; color: var(--primary-dark); border: none; border-radius: 16px; padding: 6px 14px; font-weight: bold; cursor: pointer; font-size: 13px; }
     .invite-suggest-btn { display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: bold; color: var(--primary-dark); cursor: pointer; margin-bottom: 8px; }
     .invite-suggest-row { display: flex; align-items: center; padding: 10px 12px; border: 2px solid transparent; border-radius: var(--radius); margin-bottom: 8px; background: var(--card-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.02); cursor: pointer; }
@@ -186,7 +187,7 @@
           <button id="clearMushroomSearch" class="clear-search" onclick="clearSearchBox('mushroomSearchInput', 'clearMushroomSearch'); renderMushroomList()">✕</button>
         </div>
         <div class="icon-tab-group">
-          <button class="icon-tab-btn" id="hideInvitedBtn" onclick="toggleHideInvitedToday()" title="隱藏今天已邀約">
+          <button class="icon-tab-btn" id="hideInvitedBtn" onclick="toggleHideInvitedToday()" title="隱藏已處理（已邀約／不想打）">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a3 3 0 0 1 0 6"/><path d="M10 8v11a1 1 0 0 1 -1 1h-1a1 1 0 0 1 -1 -1v-5"/><path d="M12 8l4.524 -3.77a.9 .9 0 0 1 1.476 .692v12.156a.9 .9 0 0 1 -1.476 .692l-4.524 -3.77h-8a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h8"/></svg>
           </button>
           <button class="icon-tab-btn" onclick="openInviteSuggestModal()" title="邀約建議名單">
@@ -397,14 +398,25 @@
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-title">邀約建議名單</div>
-        <button class="modal-close" onclick="closeInviteSuggestModal()">✕</button>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="chip" id="megaphoneBonusBtn" onclick="toggleMegaphoneBonus()" style="margin:0; white-space:nowrap;">大聲公加碼</div>
+          <button class="modal-close" onclick="closeInviteSuggestModal()">✕</button>
+        </div>
       </div>
       <div id="inviteSuggestListContainer"></div>
+      <div class="invite-suggest-footer" id="inviteSuggestFooter">
+        <span id="inviteSuggestFooterCount">已選 0 人</span>
+        <div style="display:flex; gap:8px;">
+          <button onclick="exitSelectionMode()" style="background:#fff; border:1px solid #ccc; color:#888; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:bold; cursor:pointer;">取消</button>
+          <button onclick="markSelectedAsInvited()" style="background:var(--primary); border:none; color:#fff; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:bold; cursor:pointer;">📢 標示已邀約</button>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="invite-batch-bar" id="inviteBatchBar">
     <span id="inviteBatchCount">已選 0 人</span>
+    <button onclick="exitSelectionMode()" style="background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.6); box-shadow:none;">取消</button>
     <button onclick="markSelectedAsInvited()">📢 標示已邀約</button>
   </div>
 
@@ -702,10 +714,41 @@
     let mushroomFilterMode = 'all'; // 'all' | 'today' | '2day' | 'week'
     let hideInvitedToday = false;
     let selectedInviteIds = new Set();
+    let selectionModeOn = false; // 蘑菇筆記主列表：長按進入選取模式
+    let megaphoneBonusOn = false; // 大聲公加碼（手動開關，當天有效）
+    let inviteSuggestPool = []; // 建議名單的候選補位池
 
     function getTodayDateStr() {
       const d = new Date();
       return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function isWeekendToday() {
+      const day = new Date().getDay(); // 0=週日, 6=週六
+      return day === 0 || day === 6;
+    }
+
+    function getBatchCountToday() {
+      return (isWeekendToday() || megaphoneBonusOn) ? 3 : 1;
+    }
+
+    // 他今天揪我的次數
+    function getTodayOwedCount(f) {
+      const todayStr = getTodayDateStr();
+      return f.mushrooms.filter(m => m.date === todayStr).length;
+    }
+
+    // 我今天已經邀他的次數
+    function getTodayInvitedCount(f) {
+      const todayStr = getTodayDateStr();
+      return (f.invitedDate === todayStr) ? (f.invitedCount || 0) : 0;
+    }
+
+    // 是否已處理（邀約次數已補到跟他揪我次數一樣多，或本來就沒欠）
+    function isInviteProcessed(f) {
+      const invited = getTodayInvitedCount(f);
+      const owed = getTodayOwedCount(f);
+      return invited > 0 && invited >= owed;
     }
 
     function toggleHideInvitedToday() {
@@ -713,15 +756,32 @@
       renderMushroomList();
     }
 
-    function toggleInviteMark(fid) {
+    function toggleMegaphoneBonus() {
+      megaphoneBonusOn = !megaphoneBonusOn;
+      renderInviteSuggestList();
+    }
+
+    // 管理揪菇記錄視窗：+1 記一次邀約
+    function incrementInviteMark(fid) {
       const f = appData.friends.find(x => x.id === fid);
       if (!f) return;
       const todayStr = getTodayDateStr();
-      f.invitedDate = (f.invitedDate === todayStr) ? "" : todayStr;
+      if (f.invitedDate !== todayStr) { f.invitedDate = todayStr; f.invitedCount = 0; }
+      f.invitedCount = (f.invitedCount || 0) + 1;
       saveData();
     }
 
-    // 點卡片本身切換選取狀態（方案B）
+    // 管理揪菇記錄視窗：重設今天邀約次數
+    function resetInviteMarkToday(fid) {
+      const f = appData.friends.find(x => x.id === fid);
+      if (!f) return;
+      const todayStr = getTodayDateStr();
+      f.invitedDate = todayStr;
+      f.invitedCount = 0;
+      saveData();
+    }
+
+    // 點卡片本身切換選取狀態
     function toggleInviteSelect(fid, el) {
       if (selectedInviteIds.has(fid)) {
         selectedInviteIds.delete(fid);
@@ -730,6 +790,43 @@
         selectedInviteIds.add(fid);
         el.classList.add('selected');
       }
+      if (selectedInviteIds.size === 0) selectionModeOn = false;
+      updateInviteBatchBar();
+    }
+
+    // 主列表卡片：長按進入選取模式，進入後改成輕點即可加選
+    function setupCardSelectGesture(el, fid) {
+      let pressTimer = null;
+      let longPressFired = false;
+
+      const startPress = () => {
+        longPressFired = false;
+        pressTimer = setTimeout(() => {
+          longPressFired = true;
+          selectionModeOn = true;
+          toggleInviteSelect(fid, el);
+          if (navigator.vibrate) navigator.vibrate(15);
+        }, 480);
+      };
+      const cancelPress = () => { clearTimeout(pressTimer); };
+
+      el.addEventListener('touchstart', startPress, { passive: true });
+      el.addEventListener('touchend', cancelPress);
+      el.addEventListener('touchmove', cancelPress);
+      el.addEventListener('mousedown', startPress);
+      el.addEventListener('mouseup', cancelPress);
+      el.addEventListener('mouseleave', cancelPress);
+
+      el.addEventListener('click', () => {
+        if (longPressFired) { longPressFired = false; return; }
+        if (selectionModeOn) toggleInviteSelect(fid, el);
+      });
+    }
+
+    function exitSelectionMode() {
+      selectionModeOn = false;
+      selectedInviteIds.clear();
+      document.querySelectorAll('.card-item.selected, .invite-suggest-row.selected').forEach(el => el.classList.remove('selected'));
       updateInviteBatchBar();
     }
 
@@ -745,14 +842,19 @@
 
     function updateInviteBatchBar() {
       const count = selectedInviteIds.size;
+      // 主列表用的浮動列
       const bar = document.getElementById('inviteBatchBar');
       const countEl = document.getElementById('inviteBatchCount');
-      if (!bar) return;
-      if (count > 0) {
-        bar.style.display = 'flex';
-        countEl.innerText = `已選 ${count} 人`;
-      } else {
-        bar.style.display = 'none';
+      if (bar && countEl) {
+        if (count > 0) { bar.style.display = 'flex'; countEl.innerText = `已選 ${count} 人`; }
+        else { bar.style.display = 'none'; }
+      }
+      // 建議名單視窗內建的操作列（修正被視窗蓋住按不到的問題）
+      const suggestBar = document.getElementById('inviteSuggestFooter');
+      const suggestCountEl = document.getElementById('inviteSuggestFooterCount');
+      if (suggestBar && suggestCountEl) {
+        if (count > 0) { suggestBar.style.display = 'flex'; suggestCountEl.innerText = `已選 ${count} 人`; }
+        else { suggestBar.style.display = 'none'; }
       }
     }
 
@@ -761,9 +863,12 @@
       const todayStr = getTodayDateStr();
       selectedInviteIds.forEach(fid => {
         const f = appData.friends.find(x => x.id === fid);
-        if (f) f.invitedDate = todayStr;
+        if (!f) return;
+        if (f.invitedDate !== todayStr) { f.invitedDate = todayStr; f.invitedCount = 0; }
+        f.invitedCount = (f.invitedCount || 0) + 1;
       });
       selectedInviteIds.clear();
+      selectionModeOn = false;
       saveData();
       const modal = document.getElementById('inviteSuggestModal');
       if (modal && modal.classList.contains('open')) renderInviteSuggestList();
@@ -778,51 +883,88 @@
       document.getElementById('inviteSuggestModal').classList.remove('open');
     }
 
+    function markNotInterestedFromSuggest(fid, rowEl, batchIdx) {
+      const f = appData.friends.find(x => x.id === fid);
+      if (f) f.notInterested = true;
+      selectedInviteIds.delete(fid);
+      saveData();
+      if (rowEl) rowEl.remove();
+      updateInviteBatchBar();
+
+      // 補位：從候選池抓下一位補進同一批，維持每批10人
+      if (inviteSuggestPool.length > 0) {
+        const next = inviteSuggestPool.shift();
+        const rowsBlock = document.querySelector(`.invite-batch-block[data-batch-idx="${batchIdx}"] .invite-batch-rows`);
+        if (rowsBlock) rowsBlock.insertAdjacentHTML('beforeend', buildSuggestRowHtml(next, batchIdx));
+      }
+    }
+
+    function buildSuggestRowHtml(f, batchIdx) {
+      const lastDate = f.mushrooms.length ? f.mushrooms.map(m => m.date).sort().slice(-1)[0] : "尚無紀錄";
+      const isSelected = selectedInviteIds.has(f.id);
+      const owed = getTodayOwedCount(f);
+      const invited = getTodayInvitedCount(f);
+      const debtNote = owed > invited ? `<span style="color:var(--primary-dark); font-weight:bold;">（+${owed - invited}次）</span>` : '';
+      return `
+        <div class="invite-suggest-row ${isSelected ? 'selected' : ''}" data-fid="${f.id}" onclick="toggleInviteSelect(${f.id}, this)">
+          <div style="flex:1;">
+            <div style="font-weight:bold;">${f.name} ${debtNote}</div>
+            <div style="font-size:12px; color:var(--text-sub);">上次揪我：${lastDate}　共 ${f.mushrooms.length} 次</div>
+          </div>
+          <button onclick="event.stopPropagation(); markNotInterestedFromSuggest(${f.id}, this.closest('.invite-suggest-row'), ${batchIdx})" style="background:none; border:1px solid #ddd; color:#999; border-radius:8px; padding:6px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;" title="這菇不想打">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg>
+          </button>
+        </div>
+      `;
+    }
+
     function renderInviteSuggestList() {
       const container = document.getElementById('inviteSuggestListContainer');
       if (!container) return;
-      const todayStr = getTodayDateStr();
 
-      let candidates = appData.friends.filter(f => f.invitedDate !== todayStr);
+      let candidates = appData.friends.filter(f => !f.notInterested && !isInviteProcessed(f));
 
       candidates.sort((a, b) => {
+        const debtA = Math.max(0, getTodayOwedCount(a) - getTodayInvitedCount(a));
+        const debtB = Math.max(0, getTodayOwedCount(b) - getTodayInvitedCount(b));
+        if (debtA !== debtB) return debtB - debtA;
         let lastA = a.mushrooms.length ? a.mushrooms.map(m => m.date).sort().slice(-1)[0] : "";
         let lastB = b.mushrooms.length ? b.mushrooms.map(m => m.date).sort().slice(-1)[0] : "";
         if (lastA !== lastB) return lastB.localeCompare(lastA);
         return b.mushrooms.length - a.mushrooms.length;
       });
 
-      if (candidates.length === 0) {
+      const batchCount = getBatchCountToday();
+      const totalNeeded = batchCount * 10;
+      const visible = candidates.slice(0, totalNeeded);
+      inviteSuggestPool = candidates.slice(totalNeeded);
+
+      const bonusBtnEl = document.getElementById('megaphoneBonusBtn');
+      if (bonusBtnEl) bonusBtnEl.classList.toggle('selected', megaphoneBonusOn);
+
+      if (visible.length === 0) {
         container.innerHTML = `<div style="text-align:center; color:#888; padding:20px;">目前沒有可建議的名單（可能都已經標記今天邀約過了）</div>`;
         return;
       }
 
       const batchNames = ['第一種子','第二種子','第三種子','第四種子','第五種子','第六種子','第七種子','第八種子','第九種子','第十種子'];
       let html = '';
-      const batchSize = 10;
-      for (let i = 0; i < candidates.length; i += batchSize) {
-        const batchIdx = Math.floor(i / batchSize);
-        const batchLabel = batchNames[batchIdx] || `第${batchIdx + 1}種子`;
-        const batch = candidates.slice(i, i + batchSize);
+      for (let b = 0; b < batchCount; b++) {
+        const batch = visible.slice(b * 10, b * 10 + 10);
+        if (batch.length === 0) continue;
+        const batchLabel = batchNames[b] || `第${b + 1}種子`;
         const batchIds = batch.map(f => f.id).join(',');
         html += `
           <div style="display:flex; align-items:center; justify-content:space-between; margin:16px 0 6px;">
             <div class="invite-suggest-batch-title" style="margin:0;">${batchLabel}（${batch.length}人）</div>
             <button onclick="selectBatchIds([${batchIds}])" style="background:#efffd6; border:1px solid var(--primary); color:var(--primary-dark); border-radius:8px; padding:5px 10px; font-size:12px; font-weight:bold; cursor:pointer;">整批全選</button>
           </div>
-        `;
-        batch.forEach(f => {
-          const lastDate = f.mushrooms.length ? f.mushrooms.map(m => m.date).sort().slice(-1)[0] : "尚無紀錄";
-          const isSelected = selectedInviteIds.has(f.id);
-          html += `
-            <div class="invite-suggest-row ${isSelected ? 'selected' : ''}" data-fid="${f.id}" onclick="toggleInviteSelect(${f.id}, this)">
-              <div style="flex:1;">
-                <div style="font-weight:bold;">${f.name}</div>
-                <div style="font-size:12px; color:var(--text-sub);">上次揪我：${lastDate}　共 ${f.mushrooms.length} 次</div>
-              </div>
+          <div class="invite-batch-block" data-batch-idx="${b}">
+            <div class="invite-batch-rows">
+              ${batch.map(f => buildSuggestRowHtml(f, b)).join('')}
             </div>
-          `;
-        });
+          </div>
+        `;
       }
       container.innerHTML = html;
     }
@@ -872,14 +1014,13 @@
       const activeChip = document.getElementById(`mushroomChip_${mushroomFilterMode}`);
       if (activeChip) activeChip.classList.add('active');
 
-      const todayStr = getTodayDateStr();
       const hideBtnEl = document.getElementById('hideInvitedBtn');
       if (hideBtnEl) hideBtnEl.classList.toggle('active', hideInvitedToday);
 
       let list = appData.friends.filter(f => {
         if (!f.name.toLowerCase().includes(keyword)) return false;
         if (recentDates && !f.mushrooms.some(m => recentDates.includes(m.date))) return false;
-        if (hideInvitedToday && f.invitedDate === todayStr) return false;
+        if (hideInvitedToday && (isInviteProcessed(f) || f.notInterested)) return false;
         return true;
       });
       sortByMushroomCount(list);
@@ -904,7 +1045,7 @@
 
         let card = document.createElement("div");
         card.className = "card-item selectable" + (selectedInviteIds.has(f.id) ? " selected" : "");
-        card.onclick = () => toggleInviteSelect(f.id, card);
+        setupCardSelectGesture(card, f.id);
         card.innerHTML = `
           <div class="card-top">
             <div class="card-info-left">
@@ -1360,11 +1501,19 @@
       }
     }
 
+    function toggleNotInterested(fid) {
+      const f = appData.friends.find(x => x.id === fid);
+      if (!f) return;
+      f.notInterested = !f.notInterested;
+      saveData();
+    }
+
     function openEditMushroomHistoryModal(id) {
       const f = appData.friends.find(x => x.id === id);
       document.getElementById("modalTitle").innerText = `管理揪菇記錄 (${f.name})`;
-      const todayStr = getTodayDateStr();
-      const invitedToday = f.invitedDate === todayStr;
+      const notInterested = !!f.notInterested;
+      const invitedCount = getTodayInvitedCount(f);
+      const owedCount = getTodayOwedCount(f);
       let listHtml = f.mushrooms.length === 0 ? '<div style="color:#888; font-size:13px; margin-bottom:12px;">尚無揪菇記錄</div>' : '';
       f.mushrooms.forEach((m, idx) => {
         listHtml += `
@@ -1375,10 +1524,22 @@
         `;
       });
       document.getElementById("modalBodyContent").innerHTML = `
-        <div style="display:flex; align-items:center; justify-content:space-between; background:${invitedToday ? '#efffd6' : '#f5f6f8'}; border-radius:10px; padding:10px 12px; margin-bottom:14px;">
-          <span style="font-size:13px; font-weight:bold; color:${invitedToday ? 'var(--primary-dark)' : '#888'};">📢 ${invitedToday ? '今天已標記邀約' : '今天尚未標記邀約'}</span>
-          <button onclick="toggleInviteMark(${f.id}); openEditMushroomHistoryModal(${f.id});" style="background:#fff; border:1px solid ${invitedToday ? 'var(--primary)' : '#ccc'}; color:${invitedToday ? 'var(--primary-dark)' : '#555'}; border-radius:8px; padding:5px 10px; font-size:12px; font-weight:bold; cursor:pointer;">${invitedToday ? '取消標記' : '標記已邀約'}</button>
+        <div style="font-size:12px; font-weight:bold; color:var(--text-sub); margin-bottom:6px;">邀約狀態</div>
+        <div style="background:#fafafa; border-radius:10px; padding:10px 12px; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; background:${invitedCount > 0 ? '#efffd6' : '#f5f6f8'}; border-radius:8px; padding:10px 12px; margin-bottom:8px;">
+            <span style="font-size:13px; font-weight:bold; color:${invitedCount > 0 ? 'var(--primary-dark)' : '#888'};">今天已邀約 ${invitedCount} 次${owedCount > 0 ? `（他今天揪你 ${owedCount} 次）` : ''}</span>
+            <div style="display:flex; gap:6px;">
+              ${invitedCount > 0 ? `<button onclick="resetInviteMarkToday(${f.id}); openEditMushroomHistoryModal(${f.id});" style="background:#fff; border:1px solid #ccc; color:#888; border-radius:8px; padding:5px 10px; font-size:12px; font-weight:bold; cursor:pointer;">重設</button>` : ''}
+              <button onclick="incrementInviteMark(${f.id}); openEditMushroomHistoryModal(${f.id});" style="background:#fff; border:1px solid var(--primary); color:var(--primary-dark); border-radius:8px; padding:5px 10px; font-size:12px; font-weight:bold; cursor:pointer;">+1 記一次邀約</button>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; background:${notInterested ? '#eee' : '#f5f6f8'}; border-radius:8px; padding:10px 12px;">
+            <span style="font-size:13px; font-weight:bold; color:${notInterested ? '#666' : '#888'};">${notInterested ? '已標記這菇不想打' : '未標記不想打'}</span>
+            <button onclick="toggleNotInterested(${f.id}); openEditMushroomHistoryModal(${f.id});" style="background:#fff; border:1px solid ${notInterested ? '#999' : '#ccc'}; color:${notInterested ? '#555' : '#888'}; border-radius:8px; padding:5px 10px; font-size:12px; font-weight:bold; cursor:pointer;">${notInterested ? '取消標記' : '標記不想打'}</button>
+          </div>
         </div>
+        <div style="border-top:1px solid var(--border-color); margin-bottom:14px;"></div>
+        <div style="font-size:12px; font-weight:bold; color:var(--text-sub); margin-bottom:6px;">歷史紀錄</div>
         <div style="margin-bottom:14px;">${listHtml}</div>
         <button class="btn-submit btn-yellow" onclick="openMushroomRecordModalForFriend('${f.name}')">＋ 新增一筆揪菇記錄</button>
       `;
@@ -1519,10 +1680,10 @@
         </div>
 
         <div class="stat-category-box">
-          <div class="stat-category-title" onclick="toggleCategoryBox('stat_other_box')">其他品項自訂填寫 ▾</div>
+          <div class="stat-category-title" onclick="toggleCategoryBox('stat_other_box')">其他 ▾</div>
           <div id="stat_other_box" style="display:none; margin-top:8px;">
-            <input type="text" id="st_otherName" class="form-input" placeholder="自訂品項名稱" style="margin-bottom:6px;">
-            <input type="number" id="st_otherPrice" class="form-input" placeholder="金額 (NT$)">
+            <input type="text" id="st_otherName" class="form-input" placeholder="名稱" style="margin-bottom:6px; font-size:13px; height:38px; box-sizing:border-box;">
+            <input type="number" id="st_otherPrice" class="form-input" placeholder="$" style="font-size:13px; height:38px; box-sizing:border-box; -webkit-appearance:none; appearance:none;">
           </div>
         </div>
 
