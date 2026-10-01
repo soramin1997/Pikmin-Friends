@@ -437,7 +437,12 @@
     if (!appData.iceFlags) appData.iceFlags = {};
 
     function saveData() {
-      localStorage.setItem("pikmin_app_data", JSON.stringify(appData));
+      try {
+        localStorage.setItem("pikmin_app_data", JSON.stringify(appData));
+      } catch (err) {
+        alert("儲存空間已滿，這次的修改沒有存起來。建議到右上角「備份與還原」先匯出備份，再考慮清掉比較舊的圖片或紀錄來騰出空間。");
+        console.error("saveData failed:", err);
+      }
       renderAll();
     }
 
@@ -1045,8 +1050,7 @@
           : '尚無紀錄';
 
         let card = document.createElement("div");
-        card.className = "card-item selectable" + (selectedInviteIds.has(f.id) ? " selected" : "");
-        setupCardSelectGesture(card, f.id);
+        card.className = "card-item";
         card.innerHTML = `
           <div class="card-top">
             <div class="card-info-left">
@@ -1270,9 +1274,24 @@
       if (!file) return;
       const reader = new FileReader();
       reader.onload = e => {
-        let mKey = getMonthKey();
-        appData.images[`${mKey}_${key}`] = e.target.result;
-        saveData();
+        const img = new Image();
+        img.onload = () => {
+          // 壓縮圖片再存，避免手機瀏覽器儲存空間被佔滿導致存不進去
+          const maxDim = 1000;
+          let w = img.width, h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+            else { w = Math.round(w * maxDim / h); h = maxDim; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          const compressed = canvas.toDataURL('image/jpeg', 0.75);
+          let mKey = getMonthKey();
+          appData.images[`${mKey}_${key}`] = compressed;
+          saveData();
+        };
+        img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     }
@@ -1291,7 +1310,13 @@
       let currentTitle = document.getElementById(`titleText_${groupKey}`).innerText;
       document.getElementById("modalTitle").innerText = "修改飾品主題名稱";
       document.getElementById("modalBodyContent").innerHTML = `
-        <div class="form-group"><label class="form-label">主題名稱</label><input type="text" id="edit_group_title" class="form-input" value="${currentTitle}"></div>
+        <div class="form-group">
+          <label class="form-label">主題名稱</label>
+          <div style="position:relative;">
+            <input type="text" id="edit_group_title" class="form-input" value="${currentTitle}" style="padding-right:36px;">
+            <button type="button" onclick="document.getElementById('edit_group_title').value=''; document.getElementById('edit_group_title').focus();" style="position:absolute; top:50%; right:10px; transform:translateY(-50%); border:none; background:#ddd; border-radius:50%; width:22px; height:22px; cursor:pointer; color:#555; font-size:12px; font-weight:bold; display:flex; align-items:center; justify-content:center;">✕</button>
+          </div>
+        </div>
         <button class="btn-submit btn-green" onclick="submitEditGroupTitle('${groupKey}')">確認修改</button>
       `;
       document.getElementById("globalModal").classList.add("open");
