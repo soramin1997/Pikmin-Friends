@@ -381,6 +381,9 @@
       <div style="font-size:13px; color:#666; margin-bottom:16px; line-height:1.6;">
         資料目前只存在這支手機的這個網頁版本裡。建議定期匯出備份，換手機、換主畫面圖示、清瀏覽器資料前，都先匯出一份存起來比較安心。
       </div>
+      <div id="storageUsageBox" style="background:#f5f6f8; border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:12px; color:#666; line-height:1.8;">
+        讀取空間使用量中…
+      </div>
       <div class="form-group">
         <div class="form-label">匯出備份</div>
         <div style="font-size:12px; color:#888; margin-bottom:8px;">把目前所有資料存成一個檔案，下載到手機裡</div>
@@ -435,10 +438,58 @@
     if (typeof appData.tickets !== "number") appData.tickets = 0;
     if (!appData.groupTitles) appData.groupTitles = {};
     if (!appData.iceFlags) appData.iceFlags = {};
+    if (!appData.images) appData.images = {};
+
+    // ===== 圖片改存 IndexedDB（容量比 localStorage 大很多，避免空間塞滿）=====
+    const IMG_DB_NAME = 'pikmin_image_db';
+    const IMG_STORE = 'images';
+    let imgDBPromise = null;
+
+    function openImageDB() {
+      if (!imgDBPromise) {
+        imgDBPromise = new Promise((resolve, reject) => {
+          const req = indexedDB.open(IMG_DB_NAME, 1);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(IMG_STORE)) db.createObjectStore(IMG_STORE);
+          };
+          req.onsuccess = (e) => resolve(e.target.result);
+          req.onerror = (e) => reject(e.target.error);
+        });
+      }
+      return imgDBPromise;
+    }
+
+    async function idbSetImage(key, dataUrl) {
+      const db = await openImageDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(IMG_STORE, 'readwrite');
+        tx.objectStore(IMG_STORE).put(dataUrl, key);
+        tx.oncomplete = () => resolve();
+        tx.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    async function idbGetAllImages() {
+      const db = await openImageDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(IMG_STORE, 'readonly');
+        const store = tx.objectStore(IMG_STORE);
+        const result = {};
+        const req = store.openCursor();
+        req.onsuccess = (e) => {
+          const cursor = e.target.result;
+          if (cursor) { result[cursor.key] = cursor.value; cursor.continue(); }
+          else resolve(result);
+        };
+        req.onerror = (e) => reject(e.target.error);
+      });
+    }
 
     function saveData() {
       try {
-        localStorage.setItem("pikmin_app_data", JSON.stringify(appData));
+        const { images, ...dataToStore } = appData; // 圖片不存進 localStorage，改存 IndexedDB
+        localStorage.setItem("pikmin_app_data", JSON.stringify(dataToStore));
       } catch (err) {
         alert("儲存空間已滿，這次的修改沒有存起來。建議到右上角「備份與還原」先匯出備份，再考慮清掉比較舊的圖片或紀錄來騰出空間。");
         console.error("saveData failed:", err);
@@ -446,11 +497,66 @@
       renderAll();
     }
 
+    // 第一次載入時，如果偵測到舊版資料裡還留著內嵌的圖片，自動搬進 IndexedDB 並清掉舊的
+    async function migrateImagesIfNeeded() {
+      const oldKeys = Object.keys(appData.images || {});
+      if (oldKeys.length > 0) {
+        for (const key of oldKeys) {
+          try { await idbSetImage(key, appData.images[key]); } catch (err) { console.error('搬移圖片失敗:', key, err); }
+        }
+        try {
+          const { images, ...dataToStore } = appData;
+          localStorage.setItem("pikmin_app_data", JSON.stringify(dataToStore));
+        } catch (err) { console.error('清除舊圖片資料失敗:', err); }
+      }
+      try {
+        appData.images = await idbGetAllImages();
+      } catch (err) {
+        console.error('讀取圖片失敗:', err);
+      }
+    }
+
     function openBackupModal() {
       document.getElementById('backupModal').classList.add('open');
+      renderStorageUsage();
     }
     function closeBackupModal() {
       document.getElementById('backupModal').classList.remove('open');
+    }
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+      return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+    }
+
+    async function renderStorageUsage() {
+      const box = document.getElementById('storageUsageBox');
+      if (!box) return;
+
+      const photoKeys = Object.keys(appData.images || {});
+      const photoCount = photoKeys.length;
+      let photoBytes = 0;
+      photoKeys.forEach(k => {
+        const dataUrl = appData.images[k] || '';
+        const base64Part = dataUrl.split(',')[1] || '';
+        photoBytes += Math.round(base64Part.length * 0.75); // base64 還原成實際位元組的粗估
+      });
+
+      let html = `📷 照片空間：已用 <b>${formatBytes(photoBytes)}</b>（共 ${photoCount} 張）`;
+
+      if (navigator.storage && navigator.storage.estimate) {
+        try {
+          const est = await navigator.storage.estimate();
+          if (est.quota) {
+            html += `<br>🗂️ 瀏覽器總配額：已用 ${formatBytes(est.usage || 0)} / 約 ${formatBytes(est.quota)}`;
+          }
+        } catch (err) {
+          console.error('取得儲存空間估計失敗:', err);
+        }
+      }
+
+      box.innerHTML = html;
     }
 
     function exportBackup() {
@@ -476,7 +582,7 @@
       const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = async function(e) {
         let imported;
         try {
           imported = JSON.parse(e.target.result);
@@ -493,6 +599,11 @@
         if (!confirm('匯入後會覆蓋目前這支手機上的所有資料，確定要繼續嗎？')) {
           event.target.value = '';
           return;
+        }
+        // 備份檔裡的圖片要先寫回 IndexedDB，不然等一下重新整理就會不見
+        const importedImages = imported.images || {};
+        for (const key of Object.keys(importedImages)) {
+          try { await idbSetImage(key, importedImages[key]); } catch (err) { console.error('還原圖片失敗:', key, err); }
         }
         appData = imported;
         saveData();
@@ -1275,7 +1386,7 @@
       const reader = new FileReader();
       reader.onload = e => {
         const img = new Image();
-        img.onload = () => {
+        img.onload = async () => {
           // 壓縮圖片再存，避免手機瀏覽器儲存空間被佔滿導致存不進去
           const maxDim = 1000;
           let w = img.width, h = img.height;
@@ -1288,7 +1399,14 @@
           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
           const compressed = canvas.toDataURL('image/jpeg', 0.75);
           let mKey = getMonthKey();
-          appData.images[`${mKey}_${key}`] = compressed;
+          const fullKey = `${mKey}_${key}`;
+          appData.images[fullKey] = compressed;
+          try {
+            await idbSetImage(fullKey, compressed);
+          } catch (err) {
+            alert("圖片儲存失敗，請稍後再試一次。");
+            console.error("idbSetImage failed:", err);
+          }
           saveData();
         };
         img.src = e.target.result;
@@ -1977,7 +2095,10 @@
     }
 
     updateMonthLabel();
-    renderAll();
+    renderAll(); // 先用現有資料（圖片可能還沒載入）畫一次畫面，避免白畫面等待
+    migrateImagesIfNeeded().then(() => {
+      renderAll(); // 圖片從 IndexedDB 載入完成後，再畫一次把圖片補上
+    });
   </script>
 </body>
 </html>
