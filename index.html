@@ -94,8 +94,9 @@
     .img-reupload-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.55); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
     .img-reupload-btn svg { width: 16px; height: 16px; stroke: #fff; stroke-width: 2; fill: none; }
     
-    .dex-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .pikmin-card { background: #f9f9f9; border: 1.5px solid var(--border-color); border-radius: 10px; padding: 10px 4px; text-align: center; cursor: pointer; opacity: 0.35; filter: grayscale(100%); }
+    .dex-grid { display: flex; flex-direction: column; gap: 8px; }
+    .dex-grid-row { display: flex; justify-content: center; gap: 8px; }
+    .pikmin-card { flex: 0 0 calc(25% - 6px); box-sizing: border-box; background: #f9f9f9; border: 1.5px solid var(--border-color); border-radius: 10px; padding: 10px 4px; text-align: center; cursor: pointer; opacity: 0.35; filter: grayscale(100%); }
     .pikmin-card.collected { opacity: 1; filter: grayscale(0%); border-color: var(--primary); background: #efffd6; }
     .pikmin-icon { font-size: 20px; margin-bottom: 2px; }
     .pikmin-name { font-size: 10px; font-weight: bold; color: #333; }
@@ -1290,7 +1291,14 @@
       let collectedCount = 0;
       let totalCount = currentColors.length;
 
-      currentColors.forEach((p) => {
+      // 分成前後兩排（前排較少、後排較多，例如7色會是3+4）
+      const row1Count = Math.floor(totalCount / 2);
+      const row1El = document.createElement("div");
+      row1El.className = "dex-grid-row";
+      const row2El = document.createElement("div");
+      row2El.className = "dex-grid-row";
+
+      currentColors.forEach((p, idx) => {
         let originalIdx = pikminColorsStandard.findIndex(item => item.name === p.name);
         const key = `${mKey}_${prefix}_${originalIdx}`;
         const isCollected = appData.dex[key] || false;
@@ -1299,8 +1307,11 @@
         div.className = `pikmin-card ${isCollected ? 'collected' : ''}`;
         div.innerHTML = `<div class="pikmin-icon">${p.icon}</div><div class="pikmin-name">${p.name}</div>`;
         div.onclick = () => { appData.dex[key] = !appData.dex[key]; saveData(); };
-        container.appendChild(div);
+        (idx < row1Count ? row1El : row2El).appendChild(div);
       });
+
+      container.appendChild(row1El);
+      container.appendChild(row2El);
 
       let percent = totalCount > 0 ? Math.round((collectedCount / totalCount) * 100) : 100;
       document.getElementById(`progressBar_${prefix}`).style.width = `${percent}%`;
