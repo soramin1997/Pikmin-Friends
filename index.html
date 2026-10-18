@@ -869,6 +869,11 @@
       return invited > 0 && invited >= owed;
     }
 
+    // 「不想打」改成跟今天日期綁定，過午夜自動重置（今天先跳過的概念）
+    function isNotInterestedToday(f) {
+      return !!f.notInterested && f.notInterestedDate === getTodayDateStr();
+    }
+
     function toggleHideInvitedToday() {
       hideInvitedToday = !hideInvitedToday;
       renderMushroomList();
@@ -1003,7 +1008,7 @@
 
     function markNotInterestedFromSuggest(fid, rowEl, batchIdx) {
       const f = appData.friends.find(x => x.id === fid);
-      if (f) f.notInterested = true;
+      if (f) { f.notInterested = true; f.notInterestedDate = getTodayDateStr(); }
       selectedInviteIds.delete(fid);
       saveData();
       if (rowEl) rowEl.remove();
@@ -1029,7 +1034,7 @@
             <div style="font-weight:bold;">${f.name} ${debtNote}</div>
             <div style="font-size:12px; color:var(--text-sub);">上次揪我：${lastDate}　共 ${f.mushrooms.length} 次</div>
           </div>
-          <button onclick="event.stopPropagation(); markNotInterestedFromSuggest(${f.id}, this.closest('.invite-suggest-row'), ${batchIdx})" style="background:none; border:1px solid #ddd; color:#999; border-radius:8px; padding:6px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;" title="這菇不想打">
+          <button onclick="event.stopPropagation(); markNotInterestedFromSuggest(${f.id}, this.closest('.invite-suggest-row'), ${batchIdx})" style="background:none; border:1px solid #ddd; color:#999; border-radius:8px; padding:6px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;" title="這菇今天先跳過">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg>
           </button>
         </div>
@@ -1040,7 +1045,7 @@
       const container = document.getElementById('inviteSuggestListContainer');
       if (!container) return;
 
-      let candidates = appData.friends.filter(f => !f.notInterested && !isInviteProcessed(f));
+      let candidates = appData.friends.filter(f => !isNotInterestedToday(f) && !isInviteProcessed(f));
 
       candidates.sort((a, b) => {
         const debtA = Math.max(0, getTodayOwedCount(a) - getTodayInvitedCount(a));
@@ -1138,7 +1143,7 @@
       let list = appData.friends.filter(f => {
         if (!f.name.toLowerCase().includes(keyword)) return false;
         if (recentDates && !f.mushrooms.some(m => recentDates.includes(m.date))) return false;
-        if (hideInvitedToday && (isInviteProcessed(f) || f.notInterested)) return false;
+        if (hideInvitedToday && (isInviteProcessed(f) || isNotInterestedToday(f))) return false;
         return true;
       });
       sortByMushroomCount(list);
@@ -1659,14 +1664,20 @@
     function toggleNotInterested(fid) {
       const f = appData.friends.find(x => x.id === fid);
       if (!f) return;
-      f.notInterested = !f.notInterested;
+      if (isNotInterestedToday(f)) {
+        f.notInterested = false;
+        f.notInterestedDate = "";
+      } else {
+        f.notInterested = true;
+        f.notInterestedDate = getTodayDateStr();
+      }
       saveData();
     }
 
     function openEditMushroomHistoryModal(id) {
       const f = appData.friends.find(x => x.id === id);
       document.getElementById("modalTitle").innerText = `管理揪菇記錄 (${f.name})`;
-      const notInterested = !!f.notInterested;
+      const notInterested = isNotInterestedToday(f);
       const invitedCount = getTodayInvitedCount(f);
       const owedCount = getTodayOwedCount(f);
       let listHtml = f.mushrooms.length === 0 ? '<div style="color:#888; font-size:13px; margin-bottom:12px;">尚無揪菇記錄</div>' : '';
@@ -1689,7 +1700,7 @@
             </div>
           </div>
           <div style="display:flex; align-items:center; justify-content:space-between; background:${notInterested ? '#eee' : '#f5f6f8'}; border-radius:8px; padding:10px 12px;">
-            <span style="font-size:13px; font-weight:bold; color:${notInterested ? '#666' : '#888'};">${notInterested ? '已標記這菇不想打' : '未標記不想打'}</span>
+            <span style="font-size:13px; font-weight:bold; color:${notInterested ? '#666' : '#888'};">${notInterested ? '今天已標記這菇不想打' : '今天尚未標記不想打'}</span>
             <button onclick="toggleNotInterested(${f.id}); openEditMushroomHistoryModal(${f.id});" style="background:#fff; border:1px solid ${notInterested ? '#999' : '#ccc'}; color:${notInterested ? '#555' : '#888'}; border-radius:8px; padding:5px 10px; font-size:12px; font-weight:bold; cursor:pointer;">${notInterested ? '取消標記' : '標記不想打'}</button>
           </div>
         </div>
